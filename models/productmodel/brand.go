@@ -1,4 +1,4 @@
-package models
+package productmodel
 
 type Brand struct {
 	ID           uint   `json:"id" gorm:"primary_key"`

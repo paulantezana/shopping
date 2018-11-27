@@ -1,4 +1,4 @@
-package models
+package productmodel
 
 type Image struct {
 	ID             uint   `json:"id" gorm:"primary_key"`

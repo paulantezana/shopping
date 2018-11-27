@@ -3,6 +3,7 @@ package migration
 import (
 	"github.com/paulantezana/shopping/config"
 	"github.com/paulantezana/shopping/models"
+    "github.com/paulantezana/shopping/models/productmodel"
 )
 
 // migration function
@@ -11,17 +12,17 @@ func Migrate() {
 	defer db.Close()
 
 	db.Debug().AutoMigrate(
-		models.Category{},
-		models.Product{},
-		models.ProductCategory{},
-		models.Brand{},
-		models.UnitMeasure{},
-		models.Commentary{},
-		models.ProductRelationship{},
-		models.Image{},
-		models.Presentation{},
-		models.Variant{},
-		models.Alternative{},
+        productmodel.Category{},
+        productmodel.Product{},
+        productmodel.ProductCategory{},
+        productmodel.Brand{},
+        productmodel.UnitMeasure{},
+        productmodel.Commentary{},
+        productmodel.ProductRelationship{},
+        productmodel.Image{},
+        productmodel.Presentation{},
+        productmodel.Variant{},
+        productmodel.Alternative{},
 
 		// General
 		models.Country{},
@@ -34,18 +35,18 @@ func Migrate() {
 		models.Representative{},
 		models.GeneralSetting{},
 	)
-	db.Model(&models.ProductCategory{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
-	db.Model(&models.ProductCategory{}).AddForeignKey("category_id", "categories(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.ProductCategory{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.ProductCategory{}).AddForeignKey("category_id", "categories(id)", "RESTRICT", "RESTRICT")
 
-	db.Model(&models.Product{}).AddForeignKey("unit_measure_id", "unit_measures(id)", "RESTRICT", "RESTRICT")
-	db.Model(&models.Product{}).AddForeignKey("brand_id", "brands(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.Product{}).AddForeignKey("unit_measure_id", "unit_measures(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.Product{}).AddForeignKey("brand_id", "brands(id)", "RESTRICT", "RESTRICT")
 
-	db.Model(&models.Commentary{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
-	db.Model(&models.ProductRelationship{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
-	db.Model(&models.Image{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
-	db.Model(&models.Presentation{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
-	db.Model(&models.Variant{}).AddForeignKey("presentation_id", "presentations(id)", "RESTRICT", "RESTRICT")
-	db.Model(&models.Alternative{}).AddForeignKey("variant_id", "variants(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.Commentary{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.ProductRelationship{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.Image{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.Presentation{}).AddForeignKey("product_id", "products(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.Variant{}).AddForeignKey("presentation_id", "presentations(id)", "RESTRICT", "RESTRICT")
+	db.Model(&productmodel.Alternative{}).AddForeignKey("variant_id", "variants(id)", "RESTRICT", "RESTRICT")
 
 	// Generals
 	db.Model(&models.Level1{}).AddForeignKey("country_id", "countries(id)", "RESTRICT", "RESTRICT")

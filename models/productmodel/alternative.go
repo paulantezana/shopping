@@ -1,4 +1,4 @@
-package models
+package productmodel
 
 type Alternative struct {
 	ID          uint   `json:"id" gorm:"primary_key"`
