@@ -4,7 +4,7 @@ import (
     "fmt"
     "github.com/labstack/echo"
     "github.com/paulantezana/shopping/config"
-    "github.com/paulantezana/shopping/models/productmodel"
+    "github.com/paulantezana/shopping/models"
     "github.com/paulantezana/shopping/utilities"
     "net/http"
 )
@@ -25,7 +25,7 @@ func GetBrandsPaginate(c echo.Context) error {
 
     // Execute instructions
     var total uint
-    brands := make([]productmodel.Brand, 0)
+    brands := make([]models.Brand, 0)
 
     // Query in database
     if err := db.Where("lower(name) LIKE lower(?)", "%"+request.Search+"%").
@@ -47,7 +47,7 @@ func GetBrandsPaginate(c echo.Context) error {
 
 func CreateBrand(c echo.Context) error {
     // Get data request
-    brand := productmodel.Brand{}
+    brand := models.Brand{}
     if err := c.Bind(&brand); err != nil {
         return err
     }
@@ -74,7 +74,7 @@ func CreateBrand(c echo.Context) error {
 
 func UpdateBrand(c echo.Context) error {
     // Get data request
-    brand := productmodel.Brand{}
+    brand := models.Brand{}
     if err := c.Bind(&brand); err != nil {
         return err
     }
@@ -102,7 +102,7 @@ func UpdateBrand(c echo.Context) error {
 
 func DeleteBrand(c echo.Context) error {
     // Get data request
-    brand := productmodel.Brand{}
+    brand := models.Brand{}
     if err := c.Bind(&brand); err != nil {
         return err
     }
@@ -140,7 +140,7 @@ func MultipleDeleteBrand(c echo.Context) error {
 
     tx := db.Begin()
     for _, value := range deleteRequest.Ids {
-        brand := productmodel.Brand{
+        brand := models.Brand{
             ID: value,
         }
 

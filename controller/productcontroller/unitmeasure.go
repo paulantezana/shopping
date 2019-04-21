@@ -4,7 +4,7 @@ import (
     "fmt"
     "github.com/labstack/echo"
     "github.com/paulantezana/shopping/config"
-    "github.com/paulantezana/shopping/models/productmodel"
+    "github.com/paulantezana/shopping/models"
     "github.com/paulantezana/shopping/utilities"
     "net/http"
 )
@@ -25,7 +25,7 @@ func GetUnitMeasuresPaginate(c echo.Context) error {
 
     // Execute instructions
     var total uint
-    unitMeasures := make([]productmodel.UnitMeasure, 0)
+    unitMeasures := make([]models.UnitMeasure, 0)
 
     // Query in database
     if err := db.Where("lower(name) LIKE lower(?)", "%"+request.Search+"%").
@@ -47,7 +47,7 @@ func GetUnitMeasuresPaginate(c echo.Context) error {
 
 func CreateUnitMeasure(c echo.Context) error {
     // Get data request
-    unitMeasure := productmodel.UnitMeasure{}
+    unitMeasure := models.UnitMeasure{}
     if err := c.Bind(&unitMeasure); err != nil {
         return err
     }
@@ -74,7 +74,7 @@ func CreateUnitMeasure(c echo.Context) error {
 
 func UpdateUnitMeasure(c echo.Context) error {
     // Get data request
-    unitMeasure := productmodel.UnitMeasure{}
+    unitMeasure := models.UnitMeasure{}
     if err := c.Bind(&unitMeasure); err != nil {
         return err
     }
@@ -102,7 +102,7 @@ func UpdateUnitMeasure(c echo.Context) error {
 
 func DeleteUnitMeasure(c echo.Context) error {
     // Get data request
-    unitMeasure := productmodel.UnitMeasure{}
+    unitMeasure := models.UnitMeasure{}
     if err := c.Bind(&unitMeasure); err != nil {
         return err
     }
@@ -140,7 +140,7 @@ func MultipleDeleteUnitMeasure(c echo.Context) error {
 
     tx := db.Begin()
     for _, value := range deleteRequest.Ids {
-        unitMeasure := productmodel.UnitMeasure{
+        unitMeasure := models.UnitMeasure{
             ID: value,
         }
 

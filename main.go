@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"github.com/paulantezana/shopping/api"
-	"github.com/paulantezana/shopping/config"
-	"github.com/paulantezana/shopping/migration"
-	"os"
+    "github.com/labstack/echo"
+    "github.com/labstack/echo/middleware"
+    "github.com/paulantezana/shopping/config"
+    "github.com/paulantezana/shopping/endpoint"
+    "github.com/paulantezana/shopping/migration"
+    "net/http"
+    "os"
 )
 
 func main() {
@@ -24,18 +25,18 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.POST, echo.DELETE, echo.PUT},
 	}))
 
-	// Root router
-	//e.GET("/", func(c echo.Context) error {
-	//	return c.NoContent(http.StatusOK)
-	//})
-
 	// Assets
 	static := e.Group("/static")
 	static.Static("", "static")
 
+    // Root router success
+    e.GET("/", func(c echo.Context) error {
+        return c.NoContent(http.StatusOK)
+    })
+
 	// Sting API services
-	api.PublicApi(e)
-	api.ProtectedApi(e)
+	endpoint.PublicApi(e)
+	endpoint.ProtectedApi(e)
 
 	// Custom port
 	port := os.Getenv("PORT")
