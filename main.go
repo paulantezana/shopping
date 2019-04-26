@@ -1,13 +1,13 @@
 package main
 
 import (
-    "github.com/labstack/echo"
-    "github.com/labstack/echo/middleware"
-    "github.com/paulantezana/shopping/config"
-    "github.com/paulantezana/shopping/endpoint"
-    "github.com/paulantezana/shopping/migration"
-    "net/http"
-    "os"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"github.com/paulantezana/shopping/config"
+	"github.com/paulantezana/shopping/endpoint"
+	"github.com/paulantezana/shopping/migration"
+	"net/http"
+	"os"
 )
 
 func main() {
@@ -29,10 +29,10 @@ func main() {
 	static := e.Group("/static")
 	static.Static("", "static")
 
-    // Root router success
-    e.GET("/", func(c echo.Context) error {
-        return c.NoContent(http.StatusOK)
-    })
+	// Root router success
+	e.GET("/", func(c echo.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
 
 	// Sting API services
 	endpoint.PublicApi(e)

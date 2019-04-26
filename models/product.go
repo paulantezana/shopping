@@ -13,7 +13,6 @@ type Product struct {
 	ProductName             string    `json:"product_name"`
 	LargeDescription        string    `json:"large_description"`
 	ShortDescription        string    `json:"short_description"`
-	Keywords                string    `json:"keywords"`
 	PurchasePrice           float32   `json:"purchase_price"`
 	InFrontPage             bool      `json:"in_front_page"`
 	StarCategory            bool      `json:"star_category"`

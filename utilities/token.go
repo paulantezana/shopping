@@ -10,15 +10,15 @@ import (
 
 // Claim model use un JWT Authentication
 type Claim struct {
-	User models.User `json:"user"`
+	User models.Personal `json:"user"`
 	jwt.StandardClaims
 }
 
 // GenerateJWT generate token custom claims
-func GenerateJWT(user models.User) string {
+func GenerateJWT(personal models.Personal) string {
 	// Set custom claims
 	claims := &Claim{
-		user,
+        personal,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 12).Unix(),
 			Issuer:    "paulantezana",

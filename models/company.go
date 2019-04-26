@@ -1,8 +1,8 @@
 package models
 
-type GeneralData struct {
+type Company struct {
 	ID           uint   `json:"id" gorm:"primary_key"`
-	BusinessName string `json:"business_name"`
+    CompanyName string `json:"company_name"`
 	Ruc          string `json:"ruc"`
 	Address      string `json:"address"`
 	CompanyLogo  string `json:"company_logo"`

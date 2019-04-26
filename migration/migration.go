@@ -1,8 +1,8 @@
 package migration
 
 import (
-    "github.com/paulantezana/shopping/config"
-    "github.com/paulantezana/shopping/models"
+	"github.com/paulantezana/shopping/config"
+	"github.com/paulantezana/shopping/models"
 )
 
 // migration function
@@ -11,17 +11,17 @@ func Migrate() {
 	defer db.Close()
 
 	db.Debug().AutoMigrate(
-        models.Category{},
-        models.Product{},
-        models.ProductCategory{},
-        models.Brand{},
-        models.UnitMeasure{},
-        models.Commentary{},
-        models.ProductRelationship{},
-        models.Image{},
-        models.Presentation{},
-        models.Variant{},
-        models.Alternative{},
+		models.Category{},
+		models.Product{},
+		models.ProductCategory{},
+		models.Brand{},
+		models.UnitMeasure{},
+		models.Commentary{},
+		models.ProductRelationship{},
+		models.Image{},
+		models.Presentation{},
+		models.Variant{},
+		models.Alternative{},
 
 		// General
 		models.Country{},
