@@ -8,5 +8,5 @@ type Representative struct {
 	Position       string `json:"position"`
 	State          bool   `json:"state" gorm:"default:'true'"`
 
-	GeneralDataID uint `json:"general_data_id"`
+	CompanyID uint `json:"company_id"`
 }

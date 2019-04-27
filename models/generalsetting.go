@@ -9,5 +9,5 @@ type GeneralSetting struct {
 	LogoImpression    string  `json:"logo_impression"`
 	State             bool    `json:"state" gorm:"default:'true'"`
 
-	GeneralDataID uint `json:"general_data_id"`
+	CompanyID uint `json:"company_id"`
 }

@@ -9,6 +9,4 @@ type Company struct {
 	Email        string `json:"email"`
 	BankAccount  string `json:"bank_account"`
 	State        bool   `json:"state" gorm:"default:'true'"`
-
-	GeographicLocationID uint `json:"geographic_location_id"`
 }
