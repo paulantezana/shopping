@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/paulantezana/shopping/config"
+	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
 )
 
@@ -21,7 +21,7 @@ func ProtectedApi(e *echo.Echo) {
 	// Configure middleware with the custom claims type
 	con := middleware.JWTConfig{
 		Claims:     &utilities.Claim{},
-		SigningKey: []byte(config.GetConfig().Server.Key),
+		SigningKey: []byte(provider.GetConfig().Server.Key),
 	}
 	ar.Use(middleware.JWTWithConfig(con))
 

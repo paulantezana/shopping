@@ -11,7 +11,7 @@
         "key": "Mc]-7EEP}vJ{q{P@"
     },
     "Global": {
-        "paginate": 20
+        "pageLimit": 20
     },
     "Email": {
         "name": "REVIEW",

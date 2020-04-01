@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"github.com/paulantezana/shopping/config"
-	"github.com/paulantezana/shopping/endpoint"
-	"github.com/paulantezana/shopping/migration"
+	"github.com/paulantezana/shopping/provider"
 	"net/http"
 	"os"
+
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+	"github.com/paulantezana/shopping/endpoint"
+	"github.com/paulantezana/shopping/migration"
 )
 
 func main() {
@@ -41,7 +42,7 @@ func main() {
 	// Custom port
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = config.GetConfig().Server.Port
+		port = provider.GetConfig().Server.Port
 	}
 
 	// Starting server echo

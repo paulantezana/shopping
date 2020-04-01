@@ -2,13 +2,13 @@ package models
 
 import "time"
 
-type Category struct {
+type CompanySerie struct {
 	ID          uint   `json:"id" gorm:"primary_key"`
-	Name        string `json:"name" gorm:"type:varchar(64)"`
-	Description string `json:"description" gorm:"type:varchar(128)"`
+	Serie       string `json:"serie"`
+	Contingency bool   `json:"contingency"`
 
-	CompanyId uint `json:"company_id"`
-	ParentId  uint `json:"parent_id"`
+	CompanyLocalId     uint `json:"company_local_id"`
+	UtilDocumentTypeId uint `json:"util_document_type_id"`
 
 	CreatedAt     time.Time `json:"-"`
 	UpdatedAt     time.Time `json:"-"`
