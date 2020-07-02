@@ -2,12 +2,10 @@ package models
 
 import "time"
 
-type CompanySerie struct {
-	ID          uint   `json:"id" gorm:"primary_key"`
-	Serie       string `json:"serie"`
-	Contingency bool   `json:"contingency"`
+type CompanySalePointDocumentAuth struct {
+	ID uint `json:"id" gorm:"primary_key"`
 
-	CompanyLocalId     uint `json:"company_local_id"`
+	CompanySalePoint   uint `json:"company_sale_point"`
 	UtilDocumentTypeId uint `json:"util_document_type_id"`
 
 	CreatedAt     time.Time `json:"-"`

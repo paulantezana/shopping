@@ -14,5 +14,5 @@ type Category struct {
 	UpdatedAt     time.Time `json:"-"`
 	CreatedUserId uint      `json:"-"`
 	UpdatedUserId uint      `json:"-"`
-	State         bool      `json:"state"`
+	State         bool      `json:"state" gorm:"default: true"`
 }
