@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// Category --
 type Category struct {
 	ID          uint   `json:"id" gorm:"primary_key"`
 	Name        string `json:"name" gorm:"type:varchar(64)"`

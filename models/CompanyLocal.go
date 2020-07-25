@@ -1,13 +1,16 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type CompanyLocal struct {
-	ID          uint   `json:"id" gorm:"primary_key"`
-	Name        string `json:"name"`
-	Phone       string `json:"phone"`
-	Address     string `json:"address"`
-	Description string `json:"description"`
+	ID               uint   `json:"id" gorm:"primary_key"`
+	SocialReason     string `json:"social_reason"`
+	CommercialReason string `json:"commercial_reason"`
+	Phone            string `json:"phone"`
+	Address          string `json:"address"`
+	Description      string `json:"description"`
 
 	UtilGeographicalLocationId uint `json:"util_geographical_location_id"`
 	CompanyId                  uint `json:"company_id"`
@@ -17,4 +20,6 @@ type CompanyLocal struct {
 	CreatedUserId uint      `json:"-"`
 	UpdatedUserId uint      `json:"-"`
 	State         bool      `json:"state" gorm:"default: true"`
+
+	CompanySeries []CompanySerie `json:"company_series"`
 }

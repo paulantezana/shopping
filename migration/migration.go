@@ -13,7 +13,7 @@ func Migrate() {
 	db := provider.GetConnection()
 	defer db.Close()
 
-	db.Debug().AutoMigrate(
+	db.AutoMigrate(
 		&models.UtilAdditionalLegendType{},
 		&models.UtilCatAffectationIgvType{},
 		&models.UtilCreditDebitType{},
@@ -52,7 +52,7 @@ func Migrate() {
 		&models.AppAuthorization{},
 	)
 
-	// DATA APP
+	// Data app
 	user := models.User{}
 	db.First(&user)
 	if user.ID == 0 {
@@ -67,7 +67,7 @@ func Migrate() {
 		db.Create(&newUser)
 	}
 
-	// DEFAULT DATA
+	// Default data
 	docType := models.UtilDocumentType{}
 	db.First(&docType)
 	if docType.ID == 0 {
@@ -307,5 +307,19 @@ func Migrate() {
 		db.Create(&models.UtilSubjectDetractionType{Code: "040", Description: "Bien inmueble gravado con IGV"})
 		db.Create(&models.UtilSubjectDetractionType{Code: "041", Description: "Plomo"})
 		db.Create(&models.UtilSubjectDetractionType{Code: "099", Description: "Ley 30737"})
+
+		// Init Value
+		db.Create(&models.UtilGeographicalLocation{Code: "010101", District: "Chachapoyas", Province: "Chachapoyas", Department: "Amazonas"})
+		db.Create(&models.UtilGeographicalLocation{Code: "010102", District: "Asuncion", Province: "Chachapoyas", Department: "Amazonas"})
+	}
+
+	// Company
+	company := models.Company{}
+	db.First(&company)
+	if company.ID == 0 {
+		company = models.Company{
+			DocumentNumber: "99999999999",
+		}
+		db.Create(&company)
 	}
 }

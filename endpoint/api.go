@@ -36,4 +36,34 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/user/create", controller.CreateUser)
 	ar.POST("/user/update", controller.UpdateUser)
 	ar.POST("/user/delete", controller.DeleteUser)
+
+	// Company Local
+	ar.POST("/company/local/by/id", controller.GetCompanyLocalByID)
+	ar.POST("/company/local/paginate", controller.PaginateCompanyLocal)
+	ar.POST("/company/local/create", controller.CreateCompanyLocal)
+	ar.POST("/company/local/update", controller.UpdateCompanyLocal)
+	ar.POST("/company/local/delete", controller.DeleteCompanyLocal)
+
+	// Utils all
+	ar.GET("/util/additionalLegendType/all", controller.GetAllUtilAdditionalLegendType)
+	ar.GET("/util/catAffectationIgvType/all", controller.GetAllUtilCatAffectationIgvType)
+	ar.GET("/util/creditDebitType/all", controller.GetAllUtilCreditDebitType)
+	ar.GET("/util/currencyType/all", controller.GetAllUtilCurrencyType)
+	ar.GET("/util/documentType/all", controller.GetAllUtilDocumentType)
+	ar.GET("/util/geographicalLocation/all", controller.GetAllUtilGeographicalLocation)
+	ar.GET("/util/identityDocumentType/all", controller.GetAllUtilIdentityDocumentType)
+	ar.GET("/util/operationType/all", controller.GetAllUtilOperationType)
+	ar.GET("/util/perceptionType/all", controller.GetAllUtilPerceptionType)
+	ar.GET("/util/productType/all", controller.GetAllUtilProductType)
+	ar.GET("/util/subjectDetractionType/all", controller.GetAllUtilSubjectDetractionType)
+	ar.GET("/util/systemIscType/all", controller.GetAllUtilSystemIscType)
+	ar.GET("/util/transferReasonType/all", controller.GetAllUtilTransferReasonType)
+	ar.GET("/util/transportModeType/all", controller.GetAllUtilTransportModeType)
+	ar.GET("/util/tributeType/all", controller.GetAllUtilTributeType)
+	ar.GET("/util/unitMeasureType/all", controller.GetAllUtilUnitMeasureType)
+
+	// Utils Search
+	ar.POST("/util/geographicalLocation/search", controller.GetSearchUtilGeographicalLocation)
+	ar.POST("/util/productType/search", controller.GetAllUtilGeographicalLocation)
+	ar.POST("/util/productType/search", controller.GetAllUtilGeographicalLocation)
 }

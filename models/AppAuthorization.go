@@ -1,6 +1,6 @@
 package models
 
-// AppAuthorization
+// AppAuthorization --
 type AppAuthorization struct {
 	ID          uint   `json:"id" gorm:"primary_key"`
 	Key         string `json:"key" gorm:"not null; type:varchar(64)"`
