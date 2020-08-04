@@ -1,0 +1,5 @@
+{
+    "ImportPath": "github.com/paulantezana/review",
+    "GoVersion": "go1.14",
+    "GodepVersion": "v80"
+}

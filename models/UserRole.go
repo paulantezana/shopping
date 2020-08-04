@@ -5,7 +5,7 @@ import "time"
 // UserRole
 type UserRole struct {
 	ID        uint   `json:"id" gorm:"primary_key"`
-	Name      string `json:"name" gorm:"type:varchar(64)"`
+    Description      string `json:"description" gorm:"type:varchar(64)"`
 	CompanyId uint   `json:"company_id"`
 
 	CreatedAt     time.Time `json:"-"`
@@ -13,4 +13,6 @@ type UserRole struct {
 	CreatedUserId uint      `json:"-"`
 	UpdatedUserId uint      `json:"-"`
 	State         bool      `json:"state" gorm:"default: true"`
+
+	UserRoleAuthorizations []UserRoleAuthorization `json:"user_role_authorizations"`
 }

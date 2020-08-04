@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"regexp"
 
+    "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
@@ -13,11 +14,6 @@ import (
 
 // PaginateCompanyLocal function get all companylocals
 func PaginateCompanyLocal(c echo.Context) error {
-	// Get companyLocal token authenticate
-	// companyLocal := c.Get("companyLocal").(*jwt.Token)
-	// claims := companyLocal.Claims.(*utilities.Claim)
-	// currentCompanyLocal := claims.CompanyLocal
-
 	// Get data request
 	request := utilities.Request{}
 	if err := c.Bind(&request); err != nil {
@@ -38,7 +34,7 @@ func PaginateCompanyLocal(c echo.Context) error {
 	companyLocals := make([]models.CompanyLocal, 0)
 
 	// Find companyLocals
-	if err := DB.Where("social_reason LIKE ?", "%"+request.Search+"%").
+	if err := DB.Where("lower(social_reason) LIKE lower(?)", "%"+request.Search+"%").
 		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&companyLocals).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
@@ -54,8 +50,27 @@ func PaginateCompanyLocal(c echo.Context) error {
 	})
 }
 
-// CompanyLocalRequestId --
-type CompanyLocalRequestId struct {
+// GetAllCompanyLocal function get all companylocals
+func GetAllCompanyLocal(c echo.Context) error {
+	// Get connection
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Find companyLocals
+	companyLocals := make([]models.CompanyLocal, 0)
+	if err := DB.Where("state = true").Find(&companyLocals).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
+
+	// Return response
+	return c.JSON(http.StatusCreated, utilities.Response{
+		Success: true,
+		Data:    companyLocals,
+	})
+}
+
+// companyLocalRequestId --
+type companyLocalRequestId struct {
 	CompanyLocal                  models.CompanyLocal                  `json:"company_local"`
 	UtilGeographicalLocationShort models.UtilGeographicalLocationShort `json:"util_geographical_location_short"`
 }
@@ -75,7 +90,7 @@ func GetCompanyLocalByID(c echo.Context) error {
 	defer DB.Close()
 
 	// Execute instructions
-	companyLocalRequest := CompanyLocalRequestId{}
+	companyLocalRequest := companyLocalRequestId{}
 	if err := DB.First(&companyLocal, companyLocal.ID).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -97,6 +112,11 @@ func GetCompanyLocalByID(c echo.Context) error {
 
 // CreateCompanyLocal function create new companyLocal
 func CreateCompanyLocal(c echo.Context) error {
+    // Get user token authenticate
+    user := c.Get("user").(*jwt.Token)
+    claims := user.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
 	// Get data request
 	companyLocal := models.CompanyLocal{}
 	if err := c.Bind(&companyLocal); err != nil {
@@ -106,7 +126,7 @@ func CreateCompanyLocal(c echo.Context) error {
 	}
 
 	// Validate
-	valid := ValidateCompanyLocal(companyLocal)
+	valid := validateCompanyLocal(companyLocal)
 	if !valid.Success {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: valid.Message,
@@ -118,6 +138,7 @@ func CreateCompanyLocal(c echo.Context) error {
 	defer DB.Close()
 
 	// Insert companyLocal in database
+	companyLocal.CreatedUserId = currentUser.ID
 	if err := DB.Create(&companyLocal).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -132,6 +153,11 @@ func CreateCompanyLocal(c echo.Context) error {
 
 // UpdateCompanyLocal function update current companyLocal
 func UpdateCompanyLocal(c echo.Context) error {
+    // Get user token authenticate
+    user := c.Get("user").(*jwt.Token)
+    claims := user.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
 	// Get data request
 	companyLocal := models.CompanyLocal{}
 	if err := c.Bind(&companyLocal); err != nil {
@@ -141,7 +167,7 @@ func UpdateCompanyLocal(c echo.Context) error {
 	}
 
 	// Validate
-	valid := ValidateCompanyLocal(companyLocal)
+	valid := validateCompanyLocal(companyLocal)
 	if !valid.Success {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: valid.Message,
@@ -161,25 +187,26 @@ func UpdateCompanyLocal(c echo.Context) error {
 	}
 
 	// Update companyLocal in database
+	companyLocal.UpdatedUserId = currentUser.ID
 	if err := DB.Model(&companyLocal).Update(companyLocal).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-	}
-	if !companyLocal.State {
-		if err := DB.Model(companyLocal).UpdateColumn("state", false).Error; err != nil {
-			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-		}
 	}
 
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Message: "El usuario se actualizó correctamente",
+		Message: "El local se actualizó correctamente",
 		Data:    companyLocal.ID,
 	})
 }
 
-// DeleteCompanyLocal function delete companyLocal by id
-func DeleteCompanyLocal(c echo.Context) error {
+// UpdateStateCompanyLocal function update current companyLocal
+func UpdateStateCompanyLocal(c echo.Context) error {
+    // Get user token authenticate
+    user := c.Get("user").(*jwt.Token)
+    claims := user.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
 	// Get data request
 	companyLocal := models.CompanyLocal{}
 	if err := c.Bind(&companyLocal); err != nil {
@@ -192,38 +219,37 @@ func DeleteCompanyLocal(c echo.Context) error {
 	DB := provider.GetConnection()
 	defer DB.Close()
 
-	// Validate
-	if companyLocal.ID == 0 {
-		return c.JSON(http.StatusOK, utilities.Response{
-			Message: "No se especificó la clave del registro",
-		})
-	}
-
-	// Delete companyLocal in database
-	if err := DB.Unscoped().Delete(&companyLocal).Error; err != nil {
-		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	if !companyLocal.State {
+		if err := DB.Model(companyLocal).UpdateColumn("state", false).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+		}
+	} else {
+		if err := DB.Model(companyLocal).UpdateColumn("state", true).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+		}
 	}
 
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
+        Message: "El local se actualizó correctamente",
 		Data:    companyLocal.ID,
-		Message: fmt.Sprintf("El sucursal %s, se elimino correctamente", companyLocal.SocialReason),
 	})
 }
 
-func ValidateCompanyLocal(companyLocal models.CompanyLocal) utilities.Response {
+// validateCompanyLocal --
+func validateCompanyLocal(companyLocal models.CompanyLocal) utilities.Response {
 	response := utilities.Response{}
 	if companyLocal.SocialReason == "" {
-		response.Message += "Falta ingresar el codigo \n"
+		response.Message += "Falta ingresar la rason social \n"
 		return response
 	}
 	if companyLocal.SocialReason == "" {
-		response.Message += "Falta ingresar el nombre de sucursal \n"
+		response.Message += "Falta ingresar el nombre del local \n"
 		return response
 	}
 	if companyLocal.Address == "" {
-		response.Message += "Falta ingresar el dirección \n"
+		response.Message += "Falta ingresar la dirección \n"
 		return response
 	}
 	if len(companyLocal.CompanySeries) == 0 {
@@ -231,11 +257,15 @@ func ValidateCompanyLocal(companyLocal models.CompanyLocal) utilities.Response {
 		return response
 	}
 	for _, companySerie := range companyLocal.CompanySeries {
-		cSerie := string(companySerie.Serie[0])
 		if len(companySerie.Serie) != 4 {
 			response.Message += "La serie debe contener 4 digitos \n"
 			return response
 		}
+        if companySerie.UtilDocumentTypeId == 0 {
+            response.Message += "Especifique el tipo de documento \n"
+            return response
+        }
+        cSerie := string(companySerie.Serie[0])
 		if companySerie.UtilDocumentTypeId == 1 && companySerie.Contingency == false {
 			if !(cSerie == "F") {
 				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)

@@ -84,11 +84,6 @@ func GetUserByToken(c echo.Context) error {
 
 // PaginateUser function get all users
 func PaginateUser(c echo.Context) error {
-	// Get user token authenticate
-	// user := c.Get("user").(*jwt.Token)
-	// claims := user.Claims.(*utilities.Claim)
-	// currentUser := claims.User
-
 	// Get data request
 	request := utilities.Request{}
 	if err := c.Bind(&request); err != nil {
@@ -109,7 +104,7 @@ func PaginateUser(c echo.Context) error {
 	users := make([]models.User, 0)
 
 	// Find users
-	if err := DB.Where("user_name LIKE ?", "%"+request.Search+"%").
+	if err := DB.Where("lower(user_name) LIKE lower(?)", "%"+request.Search+"%").
 		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&users).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
@@ -153,6 +148,11 @@ func GetUserByID(c echo.Context) error {
 
 // CreateUser function create new user
 func CreateUser(c echo.Context) error {
+    // Get user token authenticate
+    tUser := c.Get("user").(*jwt.Token)
+    claims := tUser.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
 	// Get data request
 	user := models.User{}
 	if err := c.Bind(&user); err != nil {
@@ -176,6 +176,7 @@ func CreateUser(c echo.Context) error {
 	user.Password = pwd
 
 	// Insert user in database
+	user.CreatedUserId = currentUser.ID
 	if err := db.Create(&user).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -190,6 +191,11 @@ func CreateUser(c echo.Context) error {
 
 // UpdateUser function update current user
 func UpdateUser(c echo.Context) error {
+    // Get user token authenticate
+    tUser := c.Get("user").(*jwt.Token)
+    claims := tUser.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
 	// Get data request
 	user := models.User{}
 	if err := c.Bind(&user); err != nil {
@@ -209,8 +215,16 @@ func UpdateUser(c echo.Context) error {
 			Message: fmt.Sprintf("No se encontró el registro con id %d", user.ID),
 		})
 	}
+	if !user.State {
+		if aux.Freeze {
+			return c.JSON(http.StatusOK, utilities.Response{
+				Message: fmt.Sprintf("El usuario %s está protegido por el sistema y no se permite deshavilitar", user.UserName),
+			})
+		}
+	}
 
 	// Update user in database
+	user.UpdatedUserId = currentUser.ID
 	if err := db.Model(&user).Update(user).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -228,8 +242,13 @@ func UpdateUser(c echo.Context) error {
 	})
 }
 
-// DeleteUser function delete user by id
-func DeleteUser(c echo.Context) error {
+// UpdateStateUser function update current user
+func UpdateStateUser(c echo.Context) error {
+    // Get user token authenticate
+    tUser := c.Get("user").(*jwt.Token)
+    claims := tUser.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
 	// Get data request
 	user := models.User{}
 	if err := c.Bind(&user); err != nil {
@@ -243,27 +262,29 @@ func DeleteUser(c echo.Context) error {
 	defer db.Close()
 
 	// Validate
-	if user.ID == 0 {
+	aux := models.User{}
+	db.First(&aux, user.ID)
+	if aux.Freeze {
 		return c.JSON(http.StatusOK, utilities.Response{
-			Message: "No se especificó la clave del registro",
-		})
-	}
-	db.First(&user, user.ID)
-	if user.Freeze {
-		return c.JSON(http.StatusOK, utilities.Response{
-			Message: fmt.Sprintf("El usuario %s está protegido por el sistema y no se permite eliminar", user.UserName),
+			Message: fmt.Sprintf("El usuario %s está protegido por el sistema y no se permite deshavilitar", user.UserName),
 		})
 	}
 
-	// Delete user in database
-	if err := db.Unscoped().Delete(&user).Error; err != nil {
-		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	// Update
+	if !user.State {
+		if err := db.Model(user).UpdateColumn("state", false).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+		}
+	} else {
+		if err := db.Model(user).UpdateColumn("state", true).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+		}
 	}
 
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
+		Message: "El usuario se actualizó correctamente",
 		Data:    user.ID,
-		Message: fmt.Sprintf("El usuario %s, se elimino correctamente", user.UserName),
 	})
 }

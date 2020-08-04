@@ -52,21 +52,6 @@ func Migrate() {
 		&models.AppAuthorization{},
 	)
 
-	// Data app
-	user := models.User{}
-	db.First(&user)
-	if user.ID == 0 {
-		cc := sha256.Sum256([]byte("admin1"))
-		pwd := fmt.Sprintf("%x", cc)
-
-		newUser := models.User{
-			UserName: "admin1",
-			Password: pwd,
-			Freeze:   true,
-		}
-		db.Create(&newUser)
-	}
-
 	// Default data
 	docType := models.UtilDocumentType{}
 	db.First(&docType)
@@ -318,8 +303,51 @@ func Migrate() {
 	db.First(&company)
 	if company.ID == 0 {
 		company = models.Company{
-			DocumentNumber: "99999999999",
+			DocumentNumber:             "99999999999",
+			UtilGeographicalLocationId: 1,
 		}
 		db.Create(&company)
 	}
+
+	// App Authorization
+    appAuthorization := models.AppAuthorization{}
+    db.First(&appAuthorization)
+    if appAuthorization.ID == 0 {
+        db.Create(&models.AppAuthorization{Key: "sale", Description: "Venta", Action: "List" })
+        db.Create(&models.AppAuthorization{Key: "purchase", Description: "Compra", Action: "List" })
+        db.Create(&models.AppAuthorization{Key: "box", Description: "Caja", Action: "List" })
+        db.Create(&models.AppAuthorization{Key: "inventory", Description: "Inventario", Action: "List" })
+        db.Create(&models.AppAuthorization{Key: "maintenance", Description: "Mantenimiento", Action: "List" })
+        db.Create(&models.AppAuthorization{Key: "setting", Description: "Configuracion", Action: "List" })
+        db.Create(&models.AppAuthorization{Key: "setting_company", Description: "Configuracion", Action: "List", ParentId: 6 })
+        db.Create(&models.AppAuthorization{Key: "setting_subsidiary", Description: "Configuracion", Action: "List", ParentId: 6 })
+        db.Create(&models.AppAuthorization{Key: "setting_warehouse", Description: "Configuracion", Action: "List", ParentId: 6 })
+        db.Create(&models.AppAuthorization{Key: "setting_sale_point", Description: "Configuracion", Action: "List", ParentId: 6 })
+        db.Create(&models.AppAuthorization{Key: "setting_user_rol", Description: "Configuracion", Action: "List", ParentId: 6 })
+        db.Create(&models.AppAuthorization{Key: "setting_user", Description: "Configuracion", Action: "List", ParentId: 6 })
+    }
+
+    // UserRole
+    userRole := models.UserRole{}
+    db.First(&userRole)
+    if userRole.ID == 0 {
+        db.Create(&models.UserRole{Description: "Administrador"})
+        db.Create(&models.UserRole{Description: "Usuario"})
+    }
+
+    // User
+    user := models.User{}
+    db.First(&user)
+    if user.ID == 0 {
+        cc := sha256.Sum256([]byte("admin1"))
+        pwd := fmt.Sprintf("%x", cc)
+
+        newUser := models.User{
+            UserName: "admin1",
+            Password: pwd,
+            Freeze:   true,
+            UserRoleId: 1,
+        }
+        db.Create(&newUser)
+    }
 }

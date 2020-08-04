@@ -3,8 +3,8 @@ package models
 import "time"
 
 type CompanySalePoint struct {
-	ID   uint   `json:"id" gorm:"primary_key"`
-	Name string `json:"name"`
+	ID          uint   `json:"id" gorm:"primary_key"`
+	Description string `json:"description" gorm:"type:varchar(128)"`
 
 	CompanyLocalId uint `json:"company_local_id"`
 

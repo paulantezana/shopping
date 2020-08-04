@@ -35,14 +35,46 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/user/paginate", controller.PaginateUser)
 	ar.POST("/user/create", controller.CreateUser)
 	ar.POST("/user/update", controller.UpdateUser)
-	ar.POST("/user/delete", controller.DeleteUser)
+	ar.POST("/user/updateState", controller.UpdateStateUser)
+
+    // User Role
+    ar.POST("/user/role/by/id", controller.GetUserRoleByID)
+    ar.POST("/user/role/paginate", controller.PaginateUserRole)
+    ar.POST("/user/role/all", controller.GetAllUserRole)
+    ar.POST("/user/role/create", controller.CreateUserRole)
+    ar.POST("/user/role/update", controller.UpdateUserRole)
+    ar.POST("/user/role/updateState", controller.UpdateStateUserRole)
+    ar.POST("/user/role/appAuthorization/by/userRoleId", controller.GetAppAuthorizationByUserRole)
+    ar.POST("/user/role/appAuthorization/update", controller.UpdateUserRoleAppAuthorization)
+
+	// Company
+	ar.GET("/company/first", controller.GetFirstCompany)
+	ar.POST("/company/by/id", controller.GetCompanyByID)
+	ar.POST("/company/update", controller.UpdateCompany)
+	ar.POST("/company/uploadLogo", controller.UploadLogoCompany)
+	ar.POST("/company/uploadLogoLarge", controller.UploadLogoLargeCompany)
 
 	// Company Local
 	ar.POST("/company/local/by/id", controller.GetCompanyLocalByID)
 	ar.POST("/company/local/paginate", controller.PaginateCompanyLocal)
+	ar.POST("/company/local/all", controller.GetAllCompanyLocal)
 	ar.POST("/company/local/create", controller.CreateCompanyLocal)
 	ar.POST("/company/local/update", controller.UpdateCompanyLocal)
-	ar.POST("/company/local/delete", controller.DeleteCompanyLocal)
+	ar.POST("/company/local/updateState", controller.UpdateStateCompanyLocal)
+
+	// Company WareHouse
+	ar.POST("/company/warehouse/by/id", controller.GetCompanyWareHouseByID)
+	ar.POST("/company/warehouse/paginate", controller.PaginateCompanyWareHouse)
+	ar.POST("/company/warehouse/create", controller.CreateCompanyWareHouse)
+	ar.POST("/company/warehouse/update", controller.UpdateCompanyWareHouse)
+	ar.POST("/company/warehouse/updateState", controller.UpdateStateCompanyWareHouse)
+
+	// Company SalePoint
+	ar.POST("/company/salePoint/by/id", controller.GetCompanySalePointByID)
+	ar.POST("/company/salePoint/paginate", controller.PaginateCompanySalePoint)
+	ar.POST("/company/salePoint/create", controller.CreateCompanySalePoint)
+	ar.POST("/company/salePoint/update", controller.UpdateCompanySalePoint)
+	ar.POST("/company/salePoint/updateState", controller.UpdateStateCompanySalePoint)
 
 	// Utils all
 	ar.GET("/util/additionalLegendType/all", controller.GetAllUtilAdditionalLegendType)

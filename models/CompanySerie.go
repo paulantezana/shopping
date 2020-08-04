@@ -4,7 +4,7 @@ import "time"
 
 type CompanySerie struct {
 	ID          uint   `json:"id" gorm:"primary_key"`
-	Serie       string `json:"serie"`
+	Serie       string `json:"serie" gorm:"type:varchar(4)"`
 	Contingency bool   `json:"contingency"`
 
 	CompanyLocalId     uint `json:"company_local_id"`
