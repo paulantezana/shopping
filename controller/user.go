@@ -242,6 +242,52 @@ func UpdateUser(c echo.Context) error {
 	})
 }
 
+// UpdateUser function update current user
+func ChangePasswordUser(c echo.Context) error {
+    // Get user token authenticate
+    tUser := c.Get("user").(*jwt.Token)
+    claims := tUser.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
+    // Get data request
+    user := models.User{}
+    if err := c.Bind(&user); err != nil {
+        return c.JSON(http.StatusBadRequest, utilities.Response{
+            Message: "La estructura no es válida",
+        })
+    }
+
+    // get connection
+    db := provider.GetConnection()
+    defer db.Close()
+
+    // Validation user exist
+    aux := models.User{ID: user.ID}
+    if db.First(&aux).RecordNotFound() {
+        return c.JSON(http.StatusOK, utilities.Response{
+            Message: fmt.Sprintf("No se encontró el registro con id %d", user.ID),
+        })
+    }
+
+    // Hash password
+    cc := sha256.Sum256([]byte(user.Password))
+    pwd := fmt.Sprintf("%x", cc)
+    user.Password = pwd
+
+    // Update user in database
+    if err := db.Model(user).UpdateColumn("password", user.Password).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+        return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+    }
+
+    // Return response
+    return c.JSON(http.StatusOK, utilities.Response{
+        Success: true,
+        Message: "La contraseña se cambio correctamente",
+        Data:    user.ID,
+    })
+}
+
+
 // UpdateStateUser function update current user
 func UpdateStateUser(c echo.Context) error {
     // Get user token authenticate

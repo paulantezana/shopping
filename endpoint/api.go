@@ -35,6 +35,7 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/user/paginate", controller.PaginateUser)
 	ar.POST("/user/create", controller.CreateUser)
 	ar.POST("/user/update", controller.UpdateUser)
+	ar.POST("/user/changePassword", controller.ChangePasswordUser)
 	ar.POST("/user/updateState", controller.UpdateStateUser)
 
     // User Role
