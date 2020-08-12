@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/paulantezana/shopping/provider"
 	"net/http"
 	"os"
+
+	"github.com/paulantezana/shopping/provider"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
