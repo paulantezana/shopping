@@ -45,6 +45,7 @@ func Migrate() {
 		&models.CompanySalePointDocumentAuth{},
 
 		&models.User{},
+		&models.UserForgot{},
 		&models.UserRole{},
 		&models.UserRoleAuthorization{},
 

@@ -13,9 +13,10 @@ func PublicApi(e *echo.Echo) {
 	pb := e.Group("/api/v1/public")
 
 	pb.POST("/user/login", controller.Login)
-	//pb.POST("/user/forgot/search", controller.ForgotSearch)
-	//pb.POST("/user/forgot/validate", controller.ForgotValidate)
-	//pb.POST("/user/forgot/change", controller.ForgotChange)
+	pb.POST("/user/register", controller.RegisterUser)
+	pb.POST("/user/forgot/search", controller.ForgotSearch)
+	pb.POST("/user/forgot/validate", controller.ForgotValidate)
+	pb.POST("/user/forgot/change", controller.ForgotChange)
 }
 
 // ProtectedApi function protected urls

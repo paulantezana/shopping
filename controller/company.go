@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-    "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
@@ -78,10 +78,10 @@ func GetFirstCompany(c echo.Context) error {
 
 // UpdateCompany function update current Company
 func UpdateCompany(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	company := models.Company{}
@@ -132,10 +132,10 @@ func UpdateCompany(c echo.Context) error {
 
 // UploadLogoCompany function update current Company
 func UploadLogoCompany(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Read form fields
 	companyId := c.FormValue("id")
@@ -203,10 +203,10 @@ func UploadLogoCompany(c echo.Context) error {
 
 // UploadLogoCompany function update current Company
 func UploadLogoLargeCompany(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Read form fields
 	companyId := c.FormValue("id")
@@ -275,10 +275,10 @@ func UploadLogoLargeCompany(c echo.Context) error {
 // ValidateCompany - validate
 func ValidateCompany(Company models.Company) utilities.Response {
 	response := utilities.Response{}
-    if Company.DocumentNumber == "" {
-        response.Message += "Falta ingresar el número del documento \n"
-        return response
-    }
+	if Company.DocumentNumber == "" {
+		response.Message += "Falta ingresar el número del documento \n"
+		return response
+	}
 	if Company.SocialReason == "" {
 		response.Message += "Falta ingresar el codigo \n"
 		return response
