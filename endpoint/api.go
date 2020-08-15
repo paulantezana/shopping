@@ -48,6 +48,7 @@ func ProtectedApi(e *echo.Echo) {
     ar.POST("/user/role/updateState", controller.UpdateStateUserRole)
     ar.POST("/user/role/appAuthorization/by/userRoleId", controller.GetAppAuthorizationByUserRole)
     ar.POST("/user/role/appAuthorization/update", controller.UpdateUserRoleAppAuthorization)
+    ar.GET("/user/role/get/config", controller.GetMenuAdminByUserId)
 
 	// Company
 	ar.GET("/company/first", controller.GetFirstCompany)

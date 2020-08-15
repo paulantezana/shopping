@@ -314,18 +314,41 @@ func Migrate() {
     appAuthorization := models.AppAuthorization{}
     db.First(&appAuthorization)
     if appAuthorization.ID == 0 {
-        db.Create(&models.AppAuthorization{Key: "sale", Description: "Venta", Action: "List" })
-        db.Create(&models.AppAuthorization{Key: "purchase", Description: "Compra", Action: "List" })
-        db.Create(&models.AppAuthorization{Key: "box", Description: "Caja", Action: "List" })
-        db.Create(&models.AppAuthorization{Key: "inventory", Description: "Inventario", Action: "List" })
-        db.Create(&models.AppAuthorization{Key: "maintenance", Description: "Mantenimiento", Action: "List" })
-        db.Create(&models.AppAuthorization{Key: "setting", Description: "Configuracion", Action: "List" })
-        db.Create(&models.AppAuthorization{Key: "setting_company", Description: "Configuracion", Action: "List", ParentId: 6 })
-        db.Create(&models.AppAuthorization{Key: "setting_subsidiary", Description: "Configuracion", Action: "List", ParentId: 6 })
-        db.Create(&models.AppAuthorization{Key: "setting_warehouse", Description: "Configuracion", Action: "List", ParentId: 6 })
-        db.Create(&models.AppAuthorization{Key: "setting_sale_point", Description: "Configuracion", Action: "List", ParentId: 6 })
-        db.Create(&models.AppAuthorization{Key: "setting_user_rol", Description: "Configuracion", Action: "List", ParentId: 6 })
-        db.Create(&models.AppAuthorization{Key: "setting_user", Description: "Configuracion", Action: "List", ParentId: 6 })
+        db.Create(&models.AppAuthorization{Key: "sale",Title: "Ventas",Icon: "scan",Description: "Venta", Action: "List"})
+        db.Create(&models.AppAuthorization{Key: "purchase", Title: "Compras", Icon: "shopping",Description: "Venta", Action: "List"})
+        db.Create(&models.AppAuthorization{Key: "box", Title: "Caja", Icon: "dollar",Description: "Venta", Action: "List"})
+        db.Create(&models.AppAuthorization{Key: "inventory", Title: "Inventario", Icon: "file-search",Description: "Venta", Action: "List"})
+        db.Create(&models.AppAuthorization{Key: "maintenance", Title: "Mantenimiento", Icon: "inbox",Description: "Venta", Action: "List"})
+        db.Create(&models.AppAuthorization{Key: "setting", Title: "Configuración", Icon: "setting",Description: "Venta", Action: "List"})
+
+        db.Create(&models.AppAuthorization{Key: "sale_new_sale", Title: "Nueva venta", Icon: "scan",  To: "", Description: "Venta", Action: "List", ParentId: 1})
+        db.Create(&models.AppAuthorization{Key: "sale_credit_sale", Title: "Ventas a crédito", Icon: "credit-card",  To: "", Description: "Venta", Action: "List", ParentId: 1})
+        db.Create(&models.AppAuthorization{Key: "sale_customer", Title: "Clientes", Icon: "user",  To: "", Description: "Venta", Action: "List", ParentId: 1})
+        db.Create(&models.AppAuthorization{Key: "sale_report", Title: "Reporte", Icon: "bar-chart",  To: "", Description: "Venta", Action: "List", ParentId: 1})
+
+        db.Create(&models.AppAuthorization{Key: "purchase_new_purchase", Title: "Nueva compra", Icon: "shop", To: "", Description: "Venta", Action: "List", ParentId: 2})
+        db.Create(&models.AppAuthorization{Key: "purchase_credit_purchase", Title: "Compras a credito", Icon: "credit-card", To: "", Description: "Venta", Action: "List", ParentId: 2})
+        db.Create(&models.AppAuthorization{Key: "purchase_provider", Title: "Proveedores", Icon: "user", To: "", Description: "Venta", Action: "List", ParentId: 2})
+        db.Create(&models.AppAuthorization{Key: "purchase_report", Title: "Reporte", Icon: "bar-chart", To: "", Description: "Venta", Action: "List", ParentId: 2})
+
+        db.Create(&models.AppAuthorization{Key: "box_admin", Title: "Administrar", Icon: "dollar", To: "", Description: "Venta", Action: "List", ParentId: 3})
+
+        db.Create(&models.AppAuthorization{Key: "inventory_new_inventory", Title: "Nuevo inventario", Icon: "plus", To: "", Description: "Venta", Action: "List", ParentId: 4})
+        db.Create(&models.AppAuthorization{Key: "users", Title: "Kardex", Icon: "audit", To: "", Description: "Venta", Action: "List", ParentId: 4})
+
+        db.Create(&models.AppAuthorization{Key: "maintenance_category", Title: "Categoria", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+        db.Create(&models.AppAuthorization{Key: "maintenance_unit_measure", Title: "Unidad de medida", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+        db.Create(&models.AppAuthorization{Key: "maintenance_brand", Title: "Marca", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+        db.Create(&models.AppAuthorization{Key: "maintenance_model", Title: "Modelo", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+        db.Create(&models.AppAuthorization{Key: "maintenance_product", Title: "Producto", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+        db.Create(&models.AppAuthorization{Key: "maintenance_import", Title: "Importar", Icon: "heart", To: "", Description: "Venta", Action: "List", ParentId: 5})
+
+        db.Create(&models.AppAuthorization{Key: "setting_company", Title: "Empresa", Icon: "bank", To: "/admin/company", Description: "Venta", Action: "List", ParentId: 6})
+        db.Create(&models.AppAuthorization{Key: "setting_subsidiary", Title: "Locales y series", Icon: "home", To: "/admin/company/local", Description: "Venta", Action: "List", ParentId: 6})
+        db.Create(&models.AppAuthorization{Key: "setting_warehouse", Title: "Almacen", Icon: "hdd", To: "/admin/company/wareHouse", Description: "Venta", Action: "List", ParentId: 6})
+        db.Create(&models.AppAuthorization{Key: "setting_sale_point", Title: "Punto de venta", Icon: "shop", To: "/admin/company/salePoint", Description: "Venta", Action: "List", ParentId: 6})
+        db.Create(&models.AppAuthorization{Key: "setting_user_rol", Title: "Roles", Icon: "profile", To: "/admin/user/role", Description: "Venta", Action: "List", ParentId: 6})
+        db.Create(&models.AppAuthorization{Key: "setting_user", Title: "Usuarios", Icon: "user", To: "/admin/user/user", Description: "Venta", Action: "List", ParentId: 6})
     }
 
     // UserRole

@@ -98,6 +98,7 @@ func RegisterUser(c echo.Context) error {
     })
 }
 
+// forgotSearchEmailTemplate struct template
 type forgotSearchEmailTemplate struct {
     UserName string `json:"user_name" gorm:"type:varchar(64); not null"`
     Email    string `json:"email" gorm:"type:varchar(64); not null"`
@@ -278,6 +279,37 @@ func GetUserByToken(c echo.Context) error {
 		Success: true,
 		Data:    user,
 	})
+}
+
+// configResponse struct
+type configResponse struct {
+    AdminMenu []models.AppAuthorization `json:"admin_menu"`
+}
+
+// GetMenuAdminByUserId get admin menu
+func GetMenuAdminByUserId(c echo.Context) error {
+    tUser := c.Get("user").(*jwt.Token)
+    claims := tUser.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
+    db := provider.GetConnection()
+    defer db.Close()
+
+    appAuthorizations := make([]models.AppAuthorization, 0)
+    if err := db.Table("user_role_authorizations"). Select("app_authorizations.*").
+        Joins("INNER JOIN app_authorizations on app_authorizations.id = user_role_authorizations.app_authorization_id").
+        Where("user_role_authorizations.user_role_id = ? AND user_role_authorizations.state = true AND app_authorizations.state = true", currentUser.UserRoleId).
+        Scan(&appAuthorizations).
+        Error; err != nil {
+        return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+    }
+
+    return c.JSON(http.StatusCreated, utilities.Response{
+        Success: true,
+        Data:    configResponse{
+            AdminMenu: appAuthorizations,
+        },
+    })
 }
 
 // PaginateUser function get all users
