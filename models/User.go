@@ -19,4 +19,6 @@ type User struct {
 	CreatedUserId uint      `json:"-"`
 	UpdatedUserId uint      `json:"-"`
 	State         bool      `json:"state" gorm:"default: true"`
+
+	UserSalePoints []UserSalePoint `json:"user_sale_points"`
 }

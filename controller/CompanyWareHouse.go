@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-    "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
@@ -21,6 +21,11 @@ type companyWareHousePaginateResponse struct {
 
 // PaginateCompanyWareHouse function get all companyWareHouses
 func PaginateCompanyWareHouse(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get data request
 	request := utilities.Request{}
 	if err := c.Bind(&request); err != nil {
@@ -32,6 +37,11 @@ func PaginateCompanyWareHouse(c echo.Context) error {
 	// Get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Pagination calculate
 	offset := request.Validate()
@@ -61,6 +71,11 @@ func PaginateCompanyWareHouse(c echo.Context) error {
 
 // GetCompanyWareHouseByID function get companyWareHouse by id
 func GetCompanyWareHouseByID(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get data request
 	companyWareHouse := models.CompanyWareHouse{}
 	if err := c.Bind(&companyWareHouse); err != nil {
@@ -70,11 +85,16 @@ func GetCompanyWareHouseByID(c echo.Context) error {
 	}
 
 	// Get connection
-	db := provider.GetConnection()
-	defer db.Close()
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Execute instructions
-	if err := db.First(&companyWareHouse, companyWareHouse.ID).Error; err != nil {
+	if err := DB.First(&companyWareHouse, companyWareHouse.ID).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -87,10 +107,10 @@ func GetCompanyWareHouseByID(c echo.Context) error {
 
 // CreateCompanyWareHouse function create new companyWareHouse
 func CreateCompanyWareHouse(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companyWareHouse := models.CompanyWareHouse{}
@@ -100,18 +120,18 @@ func CreateCompanyWareHouse(c echo.Context) error {
 		})
 	}
 
-	// Default empty values
-	// if companyWareHouse.CompanyWareHouseRoleID == 0 {
-	// 	companyWareHouse.CompanyWareHouseRoleID = 6
-	// }
-
 	// get connection
-	db := provider.GetConnection()
-	defer db.Close()
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Insert companyWareHouse in database
 	companyWareHouse.CreatedUserId = currentUser.ID
-	if err := db.Create(&companyWareHouse).Error; err != nil {
+	if err := DB.Create(&companyWareHouse).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -125,10 +145,10 @@ func CreateCompanyWareHouse(c echo.Context) error {
 
 // UpdateCompanyWareHouse function update current companyWareHouse
 func UpdateCompanyWareHouse(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companyWareHouse := models.CompanyWareHouse{}
@@ -139,12 +159,17 @@ func UpdateCompanyWareHouse(c echo.Context) error {
 	}
 
 	// get connection
-	db := provider.GetConnection()
-	defer db.Close()
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Validation companyWareHouse exist
 	aux := models.CompanyWareHouse{ID: companyWareHouse.ID}
-	if db.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RecordNotFound() {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companyWareHouse.ID),
 		})
@@ -152,11 +177,11 @@ func UpdateCompanyWareHouse(c echo.Context) error {
 
 	// Update companyWareHouse in database
 	companyWareHouse.UpdatedUserId = currentUser.ID
-	if err := db.Model(&companyWareHouse).Update(companyWareHouse).Error; err != nil {
+	if err := DB.Model(&companyWareHouse).Update(companyWareHouse).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !companyWareHouse.State {
-		if err := db.Model(companyWareHouse).UpdateColumn("state", false).Error; err != nil {
+		if err := DB.Model(companyWareHouse).UpdateColumn("state", false).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
@@ -171,10 +196,10 @@ func UpdateCompanyWareHouse(c echo.Context) error {
 
 // UpdateStateCompanyWareHouse function update current companyWareHouse
 func UpdateStateCompanyWareHouse(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companyWareHouse := models.CompanyWareHouse{}
@@ -185,16 +210,21 @@ func UpdateStateCompanyWareHouse(c echo.Context) error {
 	}
 
 	// get connection
-	db := provider.GetConnection()
-	defer db.Close()
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Update companyWareHouse in database
 	if !companyWareHouse.State {
-		if err := db.Model(companyWareHouse).UpdateColumn("state", false).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+		if err := DB.Model(companyWareHouse).UpdateColumn("state", false).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	} else {
-		if err := db.Model(companyWareHouse).UpdateColumn("state", true).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+		if err := DB.Model(companyWareHouse).UpdateColumn("state", true).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}

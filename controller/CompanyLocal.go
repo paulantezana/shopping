@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"regexp"
 
-    "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
@@ -14,6 +14,11 @@ import (
 
 // PaginateCompanyLocal function get all companylocals
 func PaginateCompanyLocal(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get data request
 	request := utilities.Request{}
 	if err := c.Bind(&request); err != nil {
@@ -25,6 +30,11 @@ func PaginateCompanyLocal(c echo.Context) error {
 	// Get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Pagination calculate
 	offset := request.Validate()
@@ -52,9 +62,19 @@ func PaginateCompanyLocal(c echo.Context) error {
 
 // GetAllCompanyLocal function get all companylocals
 func GetAllCompanyLocal(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Find companyLocals
 	companyLocals := make([]models.CompanyLocal, 0)
@@ -77,6 +97,11 @@ type companyLocalRequestId struct {
 
 // GetCompanyLocalByID function get companyLocal by id
 func GetCompanyLocalByID(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get data request
 	companyLocal := models.CompanyLocal{}
 	if err := c.Bind(&companyLocal); err != nil {
@@ -88,6 +113,11 @@ func GetCompanyLocalByID(c echo.Context) error {
 	// Get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Execute instructions
 	companyLocalRequest := companyLocalRequestId{}
@@ -112,10 +142,10 @@ func GetCompanyLocalByID(c echo.Context) error {
 
 // CreateCompanyLocal function create new companyLocal
 func CreateCompanyLocal(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companyLocal := models.CompanyLocal{}
@@ -136,6 +166,11 @@ func CreateCompanyLocal(c echo.Context) error {
 	// get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Insert companyLocal in database
 	companyLocal.CreatedUserId = currentUser.ID
@@ -153,10 +188,10 @@ func CreateCompanyLocal(c echo.Context) error {
 
 // UpdateCompanyLocal function update current companyLocal
 func UpdateCompanyLocal(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companyLocal := models.CompanyLocal{}
@@ -177,6 +212,11 @@ func UpdateCompanyLocal(c echo.Context) error {
 	// get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Validation companyLocal exist
 	aux := models.CompanyLocal{ID: companyLocal.ID}
@@ -202,10 +242,10 @@ func UpdateCompanyLocal(c echo.Context) error {
 
 // UpdateStateCompanyLocal function update current companyLocal
 func UpdateStateCompanyLocal(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companyLocal := models.CompanyLocal{}
@@ -219,12 +259,17 @@ func UpdateStateCompanyLocal(c echo.Context) error {
 	DB := provider.GetConnection()
 	defer DB.Close()
 
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
+
 	if !companyLocal.State {
-		if err := DB.Model(companyLocal).UpdateColumn("state", false).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+		if err := DB.Model(companyLocal).UpdateColumn("state", false).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	} else {
-		if err := DB.Model(companyLocal).UpdateColumn("state", true).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+		if err := DB.Model(companyLocal).UpdateColumn("state", true).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
@@ -232,7 +277,7 @@ func UpdateStateCompanyLocal(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-        Message: "El local se actualizó correctamente",
+		Message: "El local se actualizó correctamente",
 		Data:    companyLocal.ID,
 	})
 }
@@ -261,11 +306,11 @@ func validateCompanyLocal(companyLocal models.CompanyLocal) utilities.Response {
 			response.Message += "La serie debe contener 4 digitos \n"
 			return response
 		}
-        if companySerie.UtilDocumentTypeId == 0 {
-            response.Message += "Especifique el tipo de documento \n"
-            return response
-        }
-        cSerie := string(companySerie.Serie[0])
+		if companySerie.UtilDocumentTypeId == 0 {
+			response.Message += "Especifique el tipo de documento \n"
+			return response
+		}
+		cSerie := string(companySerie.Serie[0])
 		if companySerie.UtilDocumentTypeId == 1 && companySerie.Contingency == false {
 			if !(cSerie == "F") {
 				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)

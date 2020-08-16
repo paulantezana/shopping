@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -23,6 +24,11 @@ type CompanyRequestId struct {
 
 // GetCompanyByID function get Company by id
 func GetCompanyByID(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get data request
 	Company := models.Company{}
 	if err := c.Bind(&Company); err != nil {
@@ -34,6 +40,11 @@ func GetCompanyByID(c echo.Context) error {
 	// Get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Execute instructions
 	CompanyRequest := CompanyRequestId{}
@@ -55,9 +66,19 @@ func GetCompanyByID(c echo.Context) error {
 
 // GetFirstCompany function get Company by id
 func GetFirstCompany(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Execute instructions
 	companyRequest := CompanyRequestId{}
@@ -79,8 +100,8 @@ func GetFirstCompany(c echo.Context) error {
 // UpdateCompany function update current Company
 func UpdateCompany(c echo.Context) error {
 	// Get user token authenticate
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*utilities.Claim)
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
@@ -102,6 +123,11 @@ func UpdateCompany(c echo.Context) error {
 	// get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Validation company exist
 	aux := models.Company{ID: company.ID}
@@ -125,7 +151,7 @@ func UpdateCompany(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Message: "El usuario se actualizó correctamente",
+		Message: "La empresa se actualizó correctamente",
 		Data:    company.ID,
 	})
 }
@@ -133,8 +159,8 @@ func UpdateCompany(c echo.Context) error {
 // UploadLogoCompany function update current Company
 func UploadLogoCompany(c echo.Context) error {
 	// Get user token authenticate
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*utilities.Claim)
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Read form fields
@@ -144,6 +170,11 @@ func UploadLogoCompany(c echo.Context) error {
 	// get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Validation Company exist
 	if DB.First(&company).RecordNotFound() {
@@ -172,7 +203,7 @@ func UploadLogoCompany(c echo.Context) error {
 	}
 
 	// Destination
-	ccc := sha256.Sum256([]byte(string(company.ID)))
+	ccc := sha256.Sum256([]byte(strconv.Itoa(int(company.ID))))
 	name := fmt.Sprintf("%x%s", ccc, filepath.Ext(file.Filename))
 	logoSRC := "static/company/" + name
 	dst, err := os.Create(logoSRC)
@@ -204,8 +235,8 @@ func UploadLogoCompany(c echo.Context) error {
 // UploadLogoCompany function update current Company
 func UploadLogoLargeCompany(c echo.Context) error {
 	// Get user token authenticate
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*utilities.Claim)
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Read form fields
@@ -215,6 +246,11 @@ func UploadLogoLargeCompany(c echo.Context) error {
 	// get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Validation Company exist
 	if DB.First(&company).RecordNotFound() {
@@ -243,7 +279,7 @@ func UploadLogoLargeCompany(c echo.Context) error {
 	}
 
 	// Destination
-	ccc := sha256.Sum256([]byte(string(company.ID)))
+	ccc := sha256.Sum256([]byte(strconv.Itoa(int(company.ID))))
 	name := fmt.Sprintf("%xlarge%s", ccc, filepath.Ext(file.Filename))
 	logoSRC := "static/company/" + name
 	dst, err := os.Create(logoSRC)

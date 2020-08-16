@@ -36,19 +36,22 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/user/paginate", controller.PaginateUser)
 	ar.POST("/user/create", controller.CreateUser)
 	ar.POST("/user/update", controller.UpdateUser)
+	ar.POST("/user/upload/avatar", controller.UploadAvatarUser)
 	ar.POST("/user/changePassword", controller.ChangePasswordUser)
 	ar.POST("/user/updateState", controller.UpdateStateUser)
+	ar.POST("/user/load/salePoint/by/id", controller.LoadSalePointByUserId)
+	ar.POST("/user/save/salePoint/by/id", controller.SaveSalePointByUserId)
 
-    // User Role
-    ar.POST("/user/role/by/id", controller.GetUserRoleByID)
-    ar.POST("/user/role/paginate", controller.PaginateUserRole)
-    ar.POST("/user/role/all", controller.GetAllUserRole)
-    ar.POST("/user/role/create", controller.CreateUserRole)
-    ar.POST("/user/role/update", controller.UpdateUserRole)
-    ar.POST("/user/role/updateState", controller.UpdateStateUserRole)
-    ar.POST("/user/role/appAuthorization/by/userRoleId", controller.GetAppAuthorizationByUserRole)
-    ar.POST("/user/role/appAuthorization/update", controller.UpdateUserRoleAppAuthorization)
-    ar.GET("/user/role/get/config", controller.GetMenuAdminByUserId)
+	// User Role
+	ar.POST("/user/role/by/id", controller.GetUserRoleByID)
+	ar.POST("/user/role/paginate", controller.PaginateUserRole)
+	ar.POST("/user/role/all", controller.GetAllUserRole)
+	ar.POST("/user/role/create", controller.CreateUserRole)
+	ar.POST("/user/role/update", controller.UpdateUserRole)
+	ar.POST("/user/role/updateState", controller.UpdateStateUserRole)
+	ar.POST("/user/role/appAuthorization/by/userRoleId", controller.GetAppAuthorizationByUserRole)
+	ar.POST("/user/role/appAuthorization/update", controller.UpdateUserRoleAppAuthorization)
+	ar.GET("/user/role/get/config", controller.GetMenuAdminByUserId)
 
 	// Company
 	ar.GET("/company/first", controller.GetFirstCompany)

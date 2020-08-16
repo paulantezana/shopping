@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-    "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
@@ -21,6 +21,11 @@ type companySalePointPaginateResponse struct {
 
 // PaginateCompanySalePoint function get all companySalePoints
 func PaginateCompanySalePoint(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get data request
 	request := utilities.Request{}
 	if err := c.Bind(&request); err != nil {
@@ -32,6 +37,11 @@ func PaginateCompanySalePoint(c echo.Context) error {
 	// Get connection
 	DB := provider.GetConnection()
 	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Pagination calculate
 	offset := request.Validate()
@@ -61,6 +71,11 @@ func PaginateCompanySalePoint(c echo.Context) error {
 
 // GetCompanySalePointByID function get companySalePoint by id
 func GetCompanySalePointByID(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
 	// Get data request
 	companySalePoint := models.CompanySalePoint{}
 	if err := c.Bind(&companySalePoint); err != nil {
@@ -70,11 +85,16 @@ func GetCompanySalePointByID(c echo.Context) error {
 	}
 
 	// Get connection
-	db := provider.GetConnection()
-	defer db.Close()
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Execute instructions
-	if err := db.First(&companySalePoint, companySalePoint.ID).Error; err != nil {
+	if err := DB.First(&companySalePoint, companySalePoint.ID).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -87,10 +107,10 @@ func GetCompanySalePointByID(c echo.Context) error {
 
 // CreateCompanySalePoint function create new companySalePoint
 func CreateCompanySalePoint(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companySalePoint := models.CompanySalePoint{}
@@ -100,18 +120,18 @@ func CreateCompanySalePoint(c echo.Context) error {
 		})
 	}
 
-	// Default empty values
-	// if companySalePoint.CompanySalePointRoleID == 0 {
-	// 	companySalePoint.CompanySalePointRoleID = 6
-	// }
-
 	// get connection
-	db := provider.GetConnection()
-	defer db.Close()
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Insert companySalePoint in database
 	companySalePoint.CreatedUserId = currentUser.ID
-	if err := db.Create(&companySalePoint).Error; err != nil {
+	if err := DB.Create(&companySalePoint).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -125,10 +145,10 @@ func CreateCompanySalePoint(c echo.Context) error {
 
 // UpdateCompanySalePoint function update current companySalePoint
 func UpdateCompanySalePoint(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companySalePoint := models.CompanySalePoint{}
@@ -139,12 +159,17 @@ func UpdateCompanySalePoint(c echo.Context) error {
 	}
 
 	// get connection
-	db := provider.GetConnection()
-	defer db.Close()
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Validation companySalePoint exist
 	aux := models.CompanySalePoint{ID: companySalePoint.ID}
-	if db.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RecordNotFound() {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companySalePoint.ID),
 		})
@@ -152,11 +177,11 @@ func UpdateCompanySalePoint(c echo.Context) error {
 
 	// Update companySalePoint in database
 	companySalePoint.UpdatedUserId = currentUser.ID
-	if err := db.Model(&companySalePoint).Update(companySalePoint).Error; err != nil {
+	if err := DB.Model(&companySalePoint).Update(companySalePoint).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !companySalePoint.State {
-		if err := db.Model(companySalePoint).UpdateColumn("state", false).Error; err != nil {
+		if err := DB.Model(companySalePoint).UpdateColumn("state", false).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
@@ -171,10 +196,10 @@ func UpdateCompanySalePoint(c echo.Context) error {
 
 // UpdateStateCompanySalePoint function update current companySalePoint
 func UpdateStateCompanySalePoint(c echo.Context) error {
-    // Get user token authenticate
-    user := c.Get("user").(*jwt.Token)
-    claims := user.Claims.(*utilities.Claim)
-    currentUser := claims.User
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
 
 	// Get data request
 	companySalePoint := models.CompanySalePoint{}
@@ -185,16 +210,21 @@ func UpdateStateCompanySalePoint(c echo.Context) error {
 	}
 
 	// get connection
-	db := provider.GetConnection()
-	defer db.Close()
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
 
 	// Update companySalePoint in database
 	if !companySalePoint.State {
-		if err := db.Model(companySalePoint).UpdateColumn("state", false).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+		if err := DB.Model(companySalePoint).UpdateColumn("state", false).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	} else {
-		if err := db.Model(companySalePoint).UpdateColumn("state", true).UpdateColumn("updated_user_id",currentUser.ID).Error; err != nil {
+		if err := DB.Model(companySalePoint).UpdateColumn("state", true).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
