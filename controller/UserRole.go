@@ -258,15 +258,14 @@ func UpdateStateUserRole(c echo.Context) error {
 
 // getAppAuthorizationUserRoleResponse --
 type getAppAuthorizationUserRoleResponse struct {
-	ID          uint   `json:"id" gorm:"primary_key"`
-	Key         string `json:"key" gorm:"not null; type:varchar(64)"`
-	Type        uint   `json:"type" gorm:"default: true"` // 0 = menu, 1 = action
-	Action      string `json:"action" gorm:"not null; type:varchar(128)"`
-	Description string `json:"description" gorm:"not null; type:varchar(255)"`
-	ParentId    uint   `json:"parent_id" gorm:"default: 0"`
-	State       bool   `json:"state" gorm:"default: true"`
-	AuthId      uint   `json:"auth_id"`
-	AuthState   bool   `json:"auth_state"`
+	ID        uint   `json:"id"`
+	Key       string `json:"key"`
+	Type      uint   `json:"type"` // 0 = menu, 1 = action
+	Title     string `json:"title"`
+	ParentId  uint   `json:"parent_id"`
+	State     bool   `json:"state"`
+	AuthId    uint   `json:"auth_id"`
+	AuthState bool   `json:"auth_state"`
 }
 
 // UpdateStateUserRole function update current userRole

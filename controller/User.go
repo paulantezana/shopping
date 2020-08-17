@@ -739,18 +739,18 @@ func SaveSalePointByUserId(c echo.Context) error {
 	}
 
 	// Update
-    for _, point := range user.UserSalePoints {
-        if point.ID == 0 {
-            point.CreatedUserId = currentUser.ID
-            if err := DB.Create(&point).Error; err != nil {
-                return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-            }
-        } else {
-            if err := DB.Model(point).UpdateColumn("state", point.State).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
-                return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-            }
-        }
-    }
+	for _, point := range user.UserSalePoints {
+		if point.ID == 0 {
+			point.CreatedUserId = currentUser.ID
+			if err := DB.Create(&point).Error; err != nil {
+				return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+			}
+		} else {
+			if err := DB.Model(point).UpdateColumn("state", point.State).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
+				return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+			}
+		}
+	}
 
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
