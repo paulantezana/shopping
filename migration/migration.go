@@ -60,6 +60,43 @@ func Migrate() {
 	docType := models.UtilDocumentType{}
 	db.First(&docType)
 	if docType.ID == 0 {
+		// App Authorization
+		db.Create(&models.AppAuthorization{Key: "sale", Title: "Ventas", Icon: "scan", Description: "Venta", Action: "List"})
+		db.Create(&models.AppAuthorization{Key: "purchase", Title: "Compras", Icon: "shopping", Description: "Venta", Action: "List"})
+		db.Create(&models.AppAuthorization{Key: "box", Title: "Caja", Icon: "dollar", Description: "Venta", Action: "List"})
+		db.Create(&models.AppAuthorization{Key: "inventory", Title: "Inventario", Icon: "file-search", Description: "Venta", Action: "List"})
+		db.Create(&models.AppAuthorization{Key: "maintenance", Title: "Mantenimiento", Icon: "inbox", Description: "Venta", Action: "List"})
+		db.Create(&models.AppAuthorization{Key: "setting", Title: "Configuración", Icon: "setting", Description: "Venta", Action: "List"})
+
+		db.Create(&models.AppAuthorization{Key: "sale_new_sale", Title: "Nueva venta", Icon: "scan", To: "", Description: "Venta", Action: "List", ParentId: 1})
+		db.Create(&models.AppAuthorization{Key: "sale_credit_sale", Title: "Ventas a crédito", Icon: "credit-card", To: "", Description: "Venta", Action: "List", ParentId: 1})
+		db.Create(&models.AppAuthorization{Key: "sale_customer", Title: "Clientes", Icon: "user", To: "", Description: "Venta", Action: "List", ParentId: 1})
+		db.Create(&models.AppAuthorization{Key: "sale_report", Title: "Reporte", Icon: "bar-chart", To: "", Description: "Venta", Action: "List", ParentId: 1})
+
+		db.Create(&models.AppAuthorization{Key: "purchase_new_purchase", Title: "Nueva compra", Icon: "shop", To: "", Description: "Venta", Action: "List", ParentId: 2})
+		db.Create(&models.AppAuthorization{Key: "purchase_credit_purchase", Title: "Compras a credito", Icon: "credit-card", To: "", Description: "Venta", Action: "List", ParentId: 2})
+		db.Create(&models.AppAuthorization{Key: "purchase_provider", Title: "Proveedores", Icon: "user", To: "", Description: "Venta", Action: "List", ParentId: 2})
+		db.Create(&models.AppAuthorization{Key: "purchase_report", Title: "Reporte", Icon: "bar-chart", To: "", Description: "Venta", Action: "List", ParentId: 2})
+
+		db.Create(&models.AppAuthorization{Key: "box_admin", Title: "Administrar", Icon: "dollar", To: "", Description: "Venta", Action: "List", ParentId: 3})
+
+		db.Create(&models.AppAuthorization{Key: "inventory_new_inventory", Title: "Nuevo inventario", Icon: "plus", To: "", Description: "Venta", Action: "List", ParentId: 4})
+		db.Create(&models.AppAuthorization{Key: "users", Title: "Kardex", Icon: "audit", To: "", Description: "Venta", Action: "List", ParentId: 4})
+
+		db.Create(&models.AppAuthorization{Key: "maintenance_category", Title: "Categoria", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_unit_measure", Title: "Unidad de medida", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_brand", Title: "Marca", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_model", Title: "Modelo", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_product", Title: "Producto", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_import", Title: "Importar", Icon: "heart", To: "", Description: "Venta", Action: "List", ParentId: 5})
+
+		db.Create(&models.AppAuthorization{Key: "setting_company", Title: "Empresa", Icon: "bank", To: "/admin/company", Description: "Venta", Action: "List", ParentId: 6})
+		db.Create(&models.AppAuthorization{Key: "setting_subsidiary", Title: "Locales y series", Icon: "home", To: "/admin/company/local", Description: "Venta", Action: "List", ParentId: 6})
+		db.Create(&models.AppAuthorization{Key: "setting_warehouse", Title: "Almacen", Icon: "hdd", To: "/admin/company/wareHouse", Description: "Venta", Action: "List", ParentId: 6})
+		db.Create(&models.AppAuthorization{Key: "setting_sale_point", Title: "Punto de venta", Icon: "shop", To: "/admin/company/salePoint", Description: "Venta", Action: "List", ParentId: 6})
+		db.Create(&models.AppAuthorization{Key: "setting_user_rol", Title: "Roles", Icon: "profile", To: "/admin/user/role", Description: "Venta", Action: "List", ParentId: 6})
+		db.Create(&models.AppAuthorization{Key: "setting_user", Title: "Usuarios", Icon: "user", To: "/admin/user/user", Description: "Venta", Action: "List", ParentId: 6})
+
 		// Document type
 		db.Create(&models.UtilDocumentType{Code: "01", Description: "FACTURA"})
 		db.Create(&models.UtilDocumentType{Code: "03", Description: "BOLETA DE VENTA"})
@@ -306,90 +343,156 @@ func Migrate() {
 	company := models.Company{}
 	db.First(&company)
 	if company.ID == 0 {
+		// COMPANY
 		company = models.Company{
 			DocumentNumber:             "99999999999",
+			SocialReason:               "ABC Company",
+			CommercialReason:           "ABC",
+			Email:                      "abc@gmail.com",
 			UtilGeographicalLocationId: 1,
 		}
 		db.Create(&company)
-	}
 
-	// App Authorization
-	appAuthorization := models.AppAuthorization{}
-	db.First(&appAuthorization)
-	if appAuthorization.ID == 0 {
-		db.Create(&models.AppAuthorization{Key: "sale", Title: "Ventas", Icon: "scan", Description: "Venta", Action: "List"})
-		db.Create(&models.AppAuthorization{Key: "purchase", Title: "Compras", Icon: "shopping", Description: "Venta", Action: "List"})
-		db.Create(&models.AppAuthorization{Key: "box", Title: "Caja", Icon: "dollar", Description: "Venta", Action: "List"})
-		db.Create(&models.AppAuthorization{Key: "inventory", Title: "Inventario", Icon: "file-search", Description: "Venta", Action: "List"})
-		db.Create(&models.AppAuthorization{Key: "maintenance", Title: "Mantenimiento", Icon: "inbox", Description: "Venta", Action: "List"})
-		db.Create(&models.AppAuthorization{Key: "setting", Title: "Configuración", Icon: "setting", Description: "Venta", Action: "List"})
+		// COMPANY LOCAL
+		companyLocal := models.CompanyLocal{
+			Description:                "ss",
+			SocialReason:               "LOCAL PRINCIPAL",
+			CommercialReason:           "LOCAL",
+			CompanyId:                  company.ID,
+			UtilGeographicalLocationId: 1,
+		}
+		db.Create(&companyLocal)
 
-		db.Create(&models.AppAuthorization{Key: "sale_new_sale", Title: "Nueva venta", Icon: "scan", To: "", Description: "Venta", Action: "List", ParentId: 1})
-		db.Create(&models.AppAuthorization{Key: "sale_credit_sale", Title: "Ventas a crédito", Icon: "credit-card", To: "", Description: "Venta", Action: "List", ParentId: 1})
-		db.Create(&models.AppAuthorization{Key: "sale_customer", Title: "Clientes", Icon: "user", To: "", Description: "Venta", Action: "List", ParentId: 1})
-		db.Create(&models.AppAuthorization{Key: "sale_report", Title: "Reporte", Icon: "bar-chart", To: "", Description: "Venta", Action: "List", ParentId: 1})
+		// SERIE
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "FPP1", UtilDocumentTypeId: 1, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "FPP1", UtilDocumentTypeId: 3, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "FPP1", UtilDocumentTypeId: 4, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "BPP1", UtilDocumentTypeId: 2, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "BPP1", UtilDocumentTypeId: 3, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "BPP1", UtilDocumentTypeId: 4, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 1, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 2, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
 
-		db.Create(&models.AppAuthorization{Key: "purchase_new_purchase", Title: "Nueva compra", Icon: "shop", To: "", Description: "Venta", Action: "List", ParentId: 2})
-		db.Create(&models.AppAuthorization{Key: "purchase_credit_purchase", Title: "Compras a credito", Icon: "credit-card", To: "", Description: "Venta", Action: "List", ParentId: 2})
-		db.Create(&models.AppAuthorization{Key: "purchase_provider", Title: "Proveedores", Icon: "user", To: "", Description: "Venta", Action: "List", ParentId: 2})
-		db.Create(&models.AppAuthorization{Key: "purchase_report", Title: "Reporte", Icon: "bar-chart", To: "", Description: "Venta", Action: "List", ParentId: 2})
+		// WARE HOUSE
+		db.Create(&models.CompanyWareHouse{CompanyLocalId: companyLocal.ID, CompanyId: company.ID, Description: "ALMACEN PRINCIPAL"})
 
-		db.Create(&models.AppAuthorization{Key: "box_admin", Title: "Administrar", Icon: "dollar", To: "", Description: "Venta", Action: "List", ParentId: 3})
+		// SALE POINT
+		db.Create(&models.CompanySalePoint{CompanyLocalId: companyLocal.ID, CompanyId: company.ID, Description: "Punto de venta 1"})
 
-		db.Create(&models.AppAuthorization{Key: "inventory_new_inventory", Title: "Nuevo inventario", Icon: "plus", To: "", Description: "Venta", Action: "List", ParentId: 4})
-		db.Create(&models.AppAuthorization{Key: "users", Title: "Kardex", Icon: "audit", To: "", Description: "Venta", Action: "List", ParentId: 4})
+		// Create Roles
+		adminRole := models.UserRole{Description: "Administrador", CompanyId: company.ID}
 
-		db.Create(&models.AppAuthorization{Key: "maintenance_category", Title: "Categoria", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_unit_measure", Title: "Unidad de medida", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_brand", Title: "Marca", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_model", Title: "Modelo", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_product", Title: "Producto", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_import", Title: "Importar", Icon: "heart", To: "", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.UserRole{Description: "Usuario", CompanyId: company.ID})
+		db.Create(&adminRole)
+		db.Create(&models.UserRole{Description: "Gerencia", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Contabilidad", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Ventas", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Operaciones", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Almacenero", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Ayudantes", CompanyId: company.ID})
 
-		db.Create(&models.AppAuthorization{Key: "setting_company", Title: "Empresa", Icon: "bank", To: "/admin/company", Description: "Venta", Action: "List", ParentId: 6})
-		db.Create(&models.AppAuthorization{Key: "setting_subsidiary", Title: "Locales y series", Icon: "home", To: "/admin/company/local", Description: "Venta", Action: "List", ParentId: 6})
-		db.Create(&models.AppAuthorization{Key: "setting_warehouse", Title: "Almacen", Icon: "hdd", To: "/admin/company/wareHouse", Description: "Venta", Action: "List", ParentId: 6})
-		db.Create(&models.AppAuthorization{Key: "setting_sale_point", Title: "Punto de venta", Icon: "shop", To: "/admin/company/salePoint", Description: "Venta", Action: "List", ParentId: 6})
-		db.Create(&models.AppAuthorization{Key: "setting_user_rol", Title: "Roles", Icon: "profile", To: "/admin/user/role", Description: "Venta", Action: "List", ParentId: 6})
-		db.Create(&models.AppAuthorization{Key: "setting_user", Title: "Usuarios", Icon: "user", To: "/admin/user/user", Description: "Venta", Action: "List", ParentId: 6})
-	}
+		// Find AppAuthorizations
+		appAuthorizations := make([]models.AppAuthorization, 0)
+		db.Where("state = true").Find(&appAuthorizations)
 
-	// UserRole
-	userRole := models.UserRole{}
-	db.First(&userRole)
-	if userRole.ID == 0 {
-		db.Create(&models.UserRole{Description: "Usuario"})
-		db.Create(&models.UserRole{Description: "Administrador"})
-		db.Create(&models.UserRole{Description: "Gerencia"})
-		db.Create(&models.UserRole{Description: "Contabilidad"})
-		db.Create(&models.UserRole{Description: "Ventas"})
-		db.Create(&models.UserRole{Description: "Operaciones"})
-		db.Create(&models.UserRole{Description: "Almacenero"})
-		db.Create(&models.UserRole{Description: "Ayudantes"})
+		userRoles := make([]models.UserRole, 0)
+		db.Where("state = true").Find(&userRoles)
 
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 4, State: true})
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 5, State: true})
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 6, State: true})
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 24, State: true})
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 25, State: true})
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 26, State: true})
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 27, State: true})
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 28, State: true})
-		db.Create(&models.UserRoleAuthorization{UserRoleId: 2, AppAuthorizationId: 29, State: true})
-	}
+		for _, authorization := range appAuthorizations {
+			for _, role := range userRoles {
+				db.Create(&models.UserRoleAuthorization{AppAuthorizationId: authorization.ID, UserRoleId: role.ID})
+			}
+		}
 
-	// User
-	user := models.User{}
-	db.First(&user)
-	if user.ID == 0 {
 		cc := sha256.Sum256([]byte("admin1"))
 		pwd := fmt.Sprintf("%x", cc)
-
 		newUser := models.User{
 			UserName:   "admin1",
 			Password:   pwd,
 			Freeze:     true,
-			UserRoleId: 2,
+			UserRoleId: adminRole.ID,
+			CompanyId:  company.ID,
+		}
+		db.Create(&newUser)
+
+		/// --------------------------------------------------------------------------------------------------------------
+		// COMPANY
+		company = models.Company{
+			DocumentNumber:             "99999999991",
+			SocialReason:               "ABC Company - 2",
+			CommercialReason:           "ABC - 2",
+			Email:                      "abc2@gmail.com",
+			UtilGeographicalLocationId: 1,
+		}
+		db.Create(&company)
+
+		// COMPANY LOCAL
+		companyLocal = models.CompanyLocal{
+			Description:                "ss",
+			SocialReason:               "LOCAL PRINCIPAL",
+			CommercialReason:           "LOCAL",
+			CompanyId:                  company.ID,
+			UtilGeographicalLocationId: 1,
+		}
+		db.Create(&companyLocal)
+
+		// SERIE
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "FPP1", UtilDocumentTypeId: 1, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "FPP1", UtilDocumentTypeId: 3, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "FPP1", UtilDocumentTypeId: 4, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "BPP1", UtilDocumentTypeId: 2, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "BPP1", UtilDocumentTypeId: 3, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "BPP1", UtilDocumentTypeId: 4, Contingency: false})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 1, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 2, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
+		db.Create(&models.CompanySerie{CompanyLocalId: companyLocal.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
+
+		// WARE HOUSE
+		db.Create(&models.CompanyWareHouse{CompanyLocalId: companyLocal.ID, CompanyId: company.ID, Description: "ALMACEN PRINCIPAL"})
+
+		// SALE POINT
+		db.Create(&models.CompanySalePoint{CompanyLocalId: companyLocal.ID, CompanyId: company.ID, Description: "Punto de venta 1"})
+
+		// Create Roles
+		adminRole = models.UserRole{Description: "Administrador", CompanyId: company.ID}
+
+		db.Create(&models.UserRole{Description: "Usuario", CompanyId: company.ID})
+		db.Create(&adminRole)
+		db.Create(&models.UserRole{Description: "Gerencia", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Contabilidad", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Ventas", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Operaciones", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Almacenero", CompanyId: company.ID})
+		db.Create(&models.UserRole{Description: "Ayudantes", CompanyId: company.ID})
+
+		// Find AppAuthorizations
+		appAuthorizations = make([]models.AppAuthorization, 0)
+		db.Where("state = true").Find(&appAuthorizations)
+
+		userRoles = make([]models.UserRole, 0)
+		db.Where("state = true").Find(&userRoles)
+
+		for _, authorization := range appAuthorizations {
+			for _, role := range userRoles {
+				db.Create(&models.UserRoleAuthorization{AppAuthorizationId: authorization.ID, UserRoleId: role.ID})
+			}
+		}
+
+		cc = sha256.Sum256([]byte("admin2"))
+		pwd = fmt.Sprintf("%x", cc)
+		newUser = models.User{
+			UserName:   "admin2",
+			Password:   pwd,
+			Freeze:     true,
+			UserRoleId: adminRole.ID,
+			CompanyId:  company.ID,
 		}
 		db.Create(&newUser)
 	}

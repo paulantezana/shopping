@@ -348,7 +348,7 @@ func PaginateUser(c echo.Context) error {
 	users := make([]models.User, 0)
 
 	// Find users
-	if err := DB.Where("lower(user_name) LIKE lower(?)", "%"+request.Search+"%").
+	if err := DB.Where("company_id = ? AND lower(user_name) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
 		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&users).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
@@ -431,6 +431,7 @@ func CreateUser(c echo.Context) error {
 
 	// Insert user in database
 	user.CreatedUserId = currentUser.ID
+	user.CompanyId = currentUser.CompanyId
 	if err := DB.Create(&user).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -663,17 +664,35 @@ func UploadAvatarUser(c echo.Context) error {
 	})
 }
 
-type salePointByUserResponse struct {
-	ID             uint   `json:"id"`
-	Description    string `json:"description"`
-	CompanyLocalId uint   `json:"company_local_id"`
-	State          bool   `json:"state"`
-	AuthId         uint   `json:"auth_id"`
-	AuthState      bool   `json:"auth_state"`
+type salePointAuth struct {
+	ID          uint   `json:"id"`
+	Description string `json:"description"`
+	State       bool   `json:"state"`
+	AuthId      uint   `json:"auth_id"`
+	AuthState   bool   `json:"auth_state"`
 }
 
-// SaveSalePointByUserId function update current user
-func LoadSalePointByUserId(c echo.Context) error {
+type wareHouseAuth struct {
+	ID          uint   `json:"id"`
+	Description string `json:"description"`
+	State       bool   `json:"state"`
+	AuthId      uint   `json:"auth_id"`
+	AuthState   bool   `json:"auth_state"`
+}
+
+type localAuthResponse struct {
+	ID               uint   `json:"id"`
+	CommercialReason string `json:"commercial_reason"`
+	State            bool   `json:"state"`
+	AuthId           uint   `json:"auth_id"`
+	AuthState        bool   `json:"auth_state"`
+
+	WareHouseAuths []wareHouseAuth `json:"ware_house_auths"`
+	SalePointAuths []salePointAuth `json:"sale_point_auths"`
+}
+
+// LoadLocalAuthByUserId function update current user
+func LoadLocalAuthByUserId(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
@@ -696,26 +715,51 @@ func LoadSalePointByUserId(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
-	// Update
-	salePoints := make([]salePointByUserResponse, 0)
-	if err := DB.Raw("SELECT csp.*,  usp.id as auth_id, usp.state as auth_state  FROM company_sale_points as csp "+
+	// Get local
+	localAuths := make([]localAuthResponse, 0)
+	if err := DB.Raw("SELECT cl.*, ula.id as auth_id, ula.state as auth_state  FROM company_locals as cl "+
 		" LEFT JOIN ( "+
-		" SELECT id, company_sale_point_id, state FROM user_sale_points WHERE user_sale_points.user_id = ? "+
-		" ) as usp ON csp.id = usp.company_sale_point_id "+
-		" WHERE csp.state = true ", user.ID).Scan(&salePoints).Error; err != nil {
+		" SELECT id, company_local_id, state FROM user_local_auths WHERE user_local_auths.user_id = ? "+
+		" ) as ula ON cl.id = ula.company_local_id "+
+		" WHERE cl.state = true ", user.ID).Scan(&localAuths).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
+
+	for i, lAuth := range localAuths {
+		// Get Sale Point
+		salePoints := make([]salePointAuth, 0)
+		if err := DB.Raw("SELECT csp.*,  usp.id as auth_id, usp.state as auth_state  FROM company_sale_points as csp "+
+			" LEFT JOIN ( "+
+			" SELECT id, company_sale_point_id, state FROM user_sale_points WHERE user_sale_points.user_id = ? "+
+			" ) as usp ON csp.id = usp.company_sale_point_id "+
+			" WHERE csp.state = true AND csp.company_local_id = ? ", user.ID, lAuth.ID).Scan(&salePoints).Error; err != nil {
+			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+		}
+
+		// Get Sale WareHouse
+		wareHouseAuths := make([]wareHouseAuth, 0)
+		if err := DB.Raw("SELECT cwh.*, uwha.id as auth_id, uwha.state as auth_state  FROM company_ware_houses as cwh "+
+			" LEFT JOIN ( "+
+			" SELECT id, company_ware_house_id, state FROM user_ware_house_auths WHERE user_ware_house_auths.user_id = ? "+
+			" ) as uwha ON cwh.id = uwha.company_ware_house_id "+
+			" WHERE cwh.state = true AND cwh.company_local_id = ? ", user.ID, lAuth.ID).Scan(&wareHouseAuths).Error; err != nil {
+			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+		}
+
+		localAuths[i].SalePointAuths = salePoints
+		localAuths[i].WareHouseAuths = wareHouseAuths
 	}
 
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
 		Message: "El usuario se actualizó correctamente",
-		Data:    salePoints,
+		Data:    localAuths,
 	})
 }
 
-// SaveSalePointByUserId function update current user
-func SaveSalePointByUserId(c echo.Context) error {
+// SaveLocalAuthByUserId function update current user
+func SaveLocalAuthByUserId(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)

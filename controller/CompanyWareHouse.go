@@ -53,7 +53,7 @@ func PaginateCompanyWareHouse(c echo.Context) error {
 	// Find companyWareHouses
 	if err := DB.Table("company_ware_houses").Select("company_ware_houses.id, company_ware_houses.description, company_ware_houses.state, company_locals.social_reason as company_local").
 		Joins("INNER JOIN company_locals on company_ware_houses.company_local_id = company_locals.id").
-		Where("lower(company_ware_houses.description) LIKE lower(?)", "%"+request.Search+"%").
+		Where("company_ware_houses.company_id = ? AND lower(company_ware_houses.description) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
 		Order("company_ware_houses.id desc").Offset(offset).Limit(request.PageSize).Scan(&companyWareHouses).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
@@ -131,6 +131,7 @@ func CreateCompanyWareHouse(c echo.Context) error {
 
 	// Insert companyWareHouse in database
 	companyWareHouse.CreatedUserId = currentUser.ID
+	companyWareHouse.CompanyId = currentUser.CompanyId
 	if err := DB.Create(&companyWareHouse).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}

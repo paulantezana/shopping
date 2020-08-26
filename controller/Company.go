@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/dgrijalva/jwt-go"
+    "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
@@ -82,7 +82,7 @@ func GetFirstCompany(c echo.Context) error {
 
 	// Execute instructions
 	companyRequest := CompanyRequestId{}
-	if err := DB.First(&companyRequest.Company).Error; err != nil {
+	if err := DB.Where("id = ?", currentUser.CompanyId).First(&companyRequest.Company).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if err := DB.Raw("SELECT id, code, concat(department, '-', province, '-', district) as description FROM util_geographical_locations WHERE id = ?", companyRequest.Company.UtilGeographicalLocationId).
@@ -177,7 +177,7 @@ func UploadLogoCompany(c echo.Context) error {
 	}
 
 	// Validation Company exist
-	if DB.First(&company).RecordNotFound() {
+	if DB.Where("id = ?", companyId).First(&company).RecordNotFound() {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companyId),
 		})
@@ -253,7 +253,7 @@ func UploadLogoLargeCompany(c echo.Context) error {
 	}
 
 	// Validation Company exist
-	if DB.First(&company).RecordNotFound() {
+	if DB.Where("id = ?", companyId).First(&company).RecordNotFound() {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companyId),
 		})

@@ -44,7 +44,7 @@ func PaginateCompanyLocal(c echo.Context) error {
 	companyLocals := make([]models.CompanyLocal, 0)
 
 	// Find companyLocals
-	if err := DB.Where("lower(social_reason) LIKE lower(?)", "%"+request.Search+"%").
+	if err := DB.Where("company_id = ? AND lower(social_reason) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
 		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&companyLocals).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
@@ -78,7 +78,7 @@ func GetAllCompanyLocal(c echo.Context) error {
 
 	// Find companyLocals
 	companyLocals := make([]models.CompanyLocal, 0)
-	if err := DB.Where("state = true").Find(&companyLocals).Error; err != nil {
+	if err := DB.Where("state = true AND company_id = ?", currentUser.CompanyId).Find(&companyLocals).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -174,6 +174,7 @@ func CreateCompanyLocal(c echo.Context) error {
 
 	// Insert companyLocal in database
 	companyLocal.CreatedUserId = currentUser.ID
+	companyLocal.CompanyId = currentUser.CompanyId
 	if err := DB.Create(&companyLocal).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -228,6 +229,7 @@ func UpdateCompanyLocal(c echo.Context) error {
 
 	// Update companyLocal in database
 	companyLocal.UpdatedUserId = currentUser.ID
+	companyLocal.CompanyId = currentUser.CompanyId
 	if err := DB.Model(&companyLocal).Update(companyLocal).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -336,7 +338,7 @@ func validateCompanyLocal(companyLocal models.CompanyLocal) utilities.Response {
 			}
 		}
 		if companySerie.Contingency {
-			if !regexp.MustCompile("^[0-9]{4}$").MatchString(cSerie) {
+			if !regexp.MustCompile("^[0-9]{4}$").MatchString(companySerie.Serie) {
 				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
 				return response
 			}

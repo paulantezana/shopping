@@ -53,7 +53,7 @@ func PaginateCompanySalePoint(c echo.Context) error {
 	// Find companySalePoints
 	if err := DB.Table("company_sale_points").Select("company_sale_points.id, company_sale_points.description, company_sale_points.state, company_locals.social_reason as company_local").
 		Joins("INNER JOIN company_locals on company_sale_points.company_local_id = company_locals.id").
-		Where("lower(company_sale_points.description) LIKE lower(?)", "%"+request.Search+"%").
+		Where("company_sale_points.company_id = ? AND lower(company_sale_points.description) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
 		Order("company_sale_points.id desc").Offset(offset).Limit(request.PageSize).Scan(&companySalePoints).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
@@ -131,6 +131,7 @@ func CreateCompanySalePoint(c echo.Context) error {
 
 	// Insert companySalePoint in database
 	companySalePoint.CreatedUserId = currentUser.ID
+	companySalePoint.CompanyId = currentUser.CompanyId
 	if err := DB.Create(&companySalePoint).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}

@@ -43,7 +43,7 @@ func PaginateUserRole(c echo.Context) error {
 	userRoles := make([]models.UserRole, 0)
 
 	// Find userRoles
-	if err := DB.Where("lower(description) LIKE lower(?)", "%"+request.Search+"%").
+	if err := DB.Where("company_id = ? AND lower(description) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
 		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&userRoles).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
@@ -77,7 +77,7 @@ func GetAllUserRole(c echo.Context) error {
 
 	// Find userRoles
 	userRoles := make([]models.UserRole, 0)
-	if err := DB.Where("state = true").Find(&userRoles).Error; err != nil {
+	if err := DB.Where("company_id = ? AND state = true", currentUser.CompanyId).Find(&userRoles).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -150,6 +150,7 @@ func CreateUserRole(c echo.Context) error {
 
 	// Insert userRole in database
 	userRole.CreatedUserId = currentUser.ID
+	userRole.CompanyId = currentUser.CompanyId
 	if err := DB.Create(&userRole).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}

@@ -39,8 +39,8 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/user/upload/avatar", controller.UploadAvatarUser)
 	ar.POST("/user/changePassword", controller.ChangePasswordUser)
 	ar.POST("/user/updateState", controller.UpdateStateUser)
-	ar.POST("/user/load/salePoint/by/id", controller.LoadSalePointByUserId)
-	ar.POST("/user/save/salePoint/by/id", controller.SaveSalePointByUserId)
+	ar.POST("/user/load/localAuth/by/id", controller.LoadLocalAuthByUserId)
+	ar.POST("/user/save/localAuth/by/id", controller.SaveLocalAuthByUserId)
 
 	// User Role
 	ar.POST("/user/role/by/id", controller.GetUserRoleByID)
