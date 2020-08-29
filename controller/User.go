@@ -285,9 +285,35 @@ func GetUserByToken(c echo.Context) error {
 	})
 }
 
+
+
+
+
+// configSalePoint
+type configSalePoint struct {
+    ID          uint `json:"id"`
+    Description string `json:"description"`
+}
+
+// configWareHouse
+type configWareHouse struct {
+    ID             uint `json:"id"`
+    Description    string `json:"description"`
+}
+
+// configLocal
+type configLocal struct {
+    ID               uint `json:"id"`
+    SocialReason     string `json:"social_reason"`
+    CommercialReason string `json:"commercial_reason"`
+    SalePoints []configSalePoint `json:"sale_points"`
+    WareHouses []configWareHouse `json:"ware_houses"`
+}
+
 // configResponse struct
 type configResponse struct {
-	AdminMenu []models.AppAuthorization `json:"admin_menu"`
+    AdminMenu []models.AppAuthorization `json:"admin_menu"`
+    Locals []configLocal `json:"locals"`
 }
 
 // GetMenuAdminByUserId get admin menu
@@ -296,11 +322,11 @@ func GetMenuAdminByUserId(c echo.Context) error {
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
-	db := provider.GetConnection()
-	defer db.Close()
+    DB := provider.GetConnection()
+	defer DB.Close()
 
 	appAuthorizations := make([]models.AppAuthorization, 0)
-	if err := db.Table("user_role_authorizations").Select("app_authorizations.*").
+	if err := DB.Table("user_role_authorizations").Select("app_authorizations.*").
 		Joins("INNER JOIN app_authorizations on app_authorizations.id = user_role_authorizations.app_authorization_id").
 		Where("user_role_authorizations.user_role_id = ? AND user_role_authorizations.state = true AND app_authorizations.state = true", currentUser.UserRoleId).
 		Scan(&appAuthorizations).
@@ -308,10 +334,40 @@ func GetMenuAdminByUserId(c echo.Context) error {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
+    // Get local
+    configLocals := make([]configLocal, 0)
+    if err := DB.Raw("SELECT cl.* FROM company_locals as cl "+
+        " INNER JOIN user_local_auths as ula ON cl.id = ula.company_local_id AND ula.user_id = ? AND ula.state = true "+
+        " WHERE cl.state = true AND cl.company_id = ?", currentUser.ID, currentUser.CompanyId).Scan(&configLocals).Error; err != nil {
+        return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+    }
+
+    for i, lAuth := range configLocals {
+        // Get Sale Point
+        salePoints := make([]configSalePoint, 0)
+        if err := DB.Raw("SELECT csp.* FROM company_sale_points as csp "+
+            " INNER JOIN user_sale_points as usp ON csp.id = usp.company_sale_point_id AND usp.user_id = ? AND usp.state = true "+
+            " WHERE csp.state = true AND csp.company_local_id = ? AND csp.company_id = ?", currentUser.ID, lAuth.ID, currentUser.CompanyId).Scan(&salePoints).Error; err != nil {
+            return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+        }
+
+        // Get Sale WareHouse
+        wareHouseAuths := make([]configWareHouse, 0)
+        if err := DB.Raw("SELECT cwh.* FROM company_ware_houses as cwh "+
+            " INNER JOIN user_ware_house_auths as uwha ON cwh.id = uwha.company_ware_house_id AND uwha.user_id = ? AND uwha.state = true "+
+            " WHERE cwh.state = true AND cwh.company_local_id = ? AND cwh.company_id = ?", currentUser.ID, lAuth.ID, currentUser.CompanyId).Scan(&wareHouseAuths).Error; err != nil {
+            return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+        }
+
+        configLocals[i].SalePoints = salePoints
+        configLocals[i].WareHouses = wareHouseAuths
+    }
+
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
 		Data: configResponse{
 			AdminMenu: appAuthorizations,
+			Locals: configLocals,
 		},
 	})
 }
@@ -718,10 +774,8 @@ func LoadLocalAuthByUserId(c echo.Context) error {
 	// Get local
 	localAuths := make([]localAuthResponse, 0)
 	if err := DB.Raw("SELECT cl.*, ula.id as auth_id, ula.state as auth_state  FROM company_locals as cl "+
-		" LEFT JOIN ( "+
-		" SELECT id, company_local_id, state FROM user_local_auths WHERE user_local_auths.user_id = ? "+
-		" ) as ula ON cl.id = ula.company_local_id "+
-		" WHERE cl.state = true ", user.ID).Scan(&localAuths).Error; err != nil {
+		" LEFT JOIN user_local_auths as ula ON cl.id = ula.company_local_id AND ula.user_id = ? "+
+		" WHERE cl.state = true AND cl.company_id = ?", user.ID, currentUser.CompanyId).Scan(&localAuths).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -729,20 +783,16 @@ func LoadLocalAuthByUserId(c echo.Context) error {
 		// Get Sale Point
 		salePoints := make([]salePointAuth, 0)
 		if err := DB.Raw("SELECT csp.*,  usp.id as auth_id, usp.state as auth_state  FROM company_sale_points as csp "+
-			" LEFT JOIN ( "+
-			" SELECT id, company_sale_point_id, state FROM user_sale_points WHERE user_sale_points.user_id = ? "+
-			" ) as usp ON csp.id = usp.company_sale_point_id "+
-			" WHERE csp.state = true AND csp.company_local_id = ? ", user.ID, lAuth.ID).Scan(&salePoints).Error; err != nil {
+			" LEFT JOIN user_sale_points as usp ON csp.id = usp.company_sale_point_id AND usp.user_id = ? "+
+			" WHERE csp.state = true AND csp.company_local_id = ? AND csp.company_id = ?", user.ID, lAuth.ID, currentUser.CompanyId).Scan(&salePoints).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 
 		// Get Sale WareHouse
 		wareHouseAuths := make([]wareHouseAuth, 0)
 		if err := DB.Raw("SELECT cwh.*, uwha.id as auth_id, uwha.state as auth_state  FROM company_ware_houses as cwh "+
-			" LEFT JOIN ( "+
-			" SELECT id, company_ware_house_id, state FROM user_ware_house_auths WHERE user_ware_house_auths.user_id = ? "+
-			" ) as uwha ON cwh.id = uwha.company_ware_house_id "+
-			" WHERE cwh.state = true AND cwh.company_local_id = ? ", user.ID, lAuth.ID).Scan(&wareHouseAuths).Error; err != nil {
+			" LEFT JOIN user_ware_house_auths as uwha ON cwh.id = uwha.company_ware_house_id AND uwha.user_id = ? "+
+			" WHERE cwh.state = true AND cwh.company_local_id = ? AND cwh.company_id = ?", user.ID, lAuth.ID, currentUser.CompanyId).Scan(&wareHouseAuths).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 
@@ -758,6 +808,11 @@ func LoadLocalAuthByUserId(c echo.Context) error {
 	})
 }
 
+type localAuthSave struct {
+    UserId uint `json:"user_id"`
+    Auths []localAuthResponse `json:"auths"`
+}
+
 // SaveLocalAuthByUserId function update current user
 func SaveLocalAuthByUserId(c echo.Context) error {
 	// Get user token authenticate
@@ -766,8 +821,8 @@ func SaveLocalAuthByUserId(c echo.Context) error {
 	currentUser := claims.User
 
 	// Get data request
-	user := models.User{}
-	if err := c.Bind(&user); err != nil {
+    localAuth := localAuthSave{}
+	if err := c.Bind(&localAuth); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -783,23 +838,65 @@ func SaveLocalAuthByUserId(c echo.Context) error {
 	}
 
 	// Update
-	for _, point := range user.UserSalePoints {
-		if point.ID == 0 {
-			point.CreatedUserId = currentUser.ID
-			if err := DB.Create(&point).Error; err != nil {
-				return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-			}
-		} else {
-			if err := DB.Model(point).UpdateColumn("state", point.State).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
-				return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-			}
-		}
-	}
+    for _, auth := range localAuth.Auths {
+        if auth.AuthId == 0{
+            ula := models.UserLocalAuth{ ID: auth.AuthId, UserId: localAuth.UserId, CompanyLocalId: auth.ID, State: auth.AuthState, CreatedUserId: currentUser.ID}
+            if err := DB.Create(&ula).Error; err != nil {
+                return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+            }
+            if auth.AuthState == false {
+                if err := DB.Model(ula).UpdateColumn("state", false).Error; err != nil {
+                    return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+                }
+            }
+        } else {
+            ula := models.UserLocalAuth{ ID: auth.AuthId }
+            if err := DB.Model(ula).UpdateColumn("state", auth.AuthState).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
+                return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+            }
+        }
+
+        for _, pointAuth := range auth.SalePointAuths {
+            if pointAuth.AuthId == 0{
+                usp := models.UserSalePoint{ ID: pointAuth.AuthId, UserId: localAuth.UserId, CompanySalePointId: pointAuth.ID, State: pointAuth.AuthState, CreatedUserId: currentUser.ID}
+                if err := DB.Create(&usp).Error; err != nil {
+                    return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+                }
+                if pointAuth.AuthState == false {
+                    if err := DB.Model(usp).UpdateColumn("state", false).Error; err != nil {
+                        return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+                    }
+                }
+            } else {
+                usp := models.UserSalePoint{ ID: pointAuth.AuthId}
+                if err := DB.Model(usp).UpdateColumn("state", pointAuth.AuthState).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
+                    return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+                }
+            }
+        }
+        for _, houseAuth := range auth.WareHouseAuths {
+            if houseAuth.AuthId == 0 {
+                uwha := models.UserWareHouseAuth{ ID: houseAuth.AuthId, UserId: localAuth.UserId, CompanyWareHouseId: houseAuth.ID, State: houseAuth.AuthState, CreatedUserId: currentUser.ID}
+                if err := DB.Create(&uwha).Error; err != nil {
+                    return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+                }
+                if houseAuth.AuthState == false {
+                    if err := DB.Model(uwha).UpdateColumn("state", false).Error; err != nil {
+                        return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+                    }
+                }
+            } else {
+                uwha := models.UserWareHouseAuth{ ID: houseAuth.AuthId }
+                if err := DB.Model(uwha).UpdateColumn("state", houseAuth.AuthState).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
+                    return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+                }
+            }
+        }
+    }
 
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Message: "El usuario se actualizó correctamente",
-		Data:    user.ID,
+		Message: "Los permisos se actualizarón correctamente",
 	})
 }
