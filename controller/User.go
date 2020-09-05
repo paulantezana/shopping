@@ -68,6 +68,18 @@ func Login(c echo.Context) error {
 	})
 }
 
+// Logout login app
+func Logout(c echo.Context) error {
+    // get connection
+    //DB := provider.GetConnection()
+    //defer DB.Close()
+
+    // Login success
+    return c.JSON(http.StatusOK, utilities.Response{
+        Success: true,
+    })
+}
+
 // CreateUser function create new user
 func RegisterUser(c echo.Context) error {
 	// Get data request

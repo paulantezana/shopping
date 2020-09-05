@@ -12,7 +12,7 @@ type Product struct {
 
 	CompanyId     uint `json:"company_id"`
 	CategoryId    uint `json:"category_id"`
-	UnitMeasureId uint `json:"unit_measure_id"`
+	UtilUnitMeasureType uint `json:"util_unit_measure_type"`
 
 	CreatedAt     time.Time `json:"-"`
 	UpdatedAt     time.Time `json:"-"`

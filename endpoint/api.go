@@ -13,6 +13,7 @@ func PublicApi(e *echo.Echo) {
 	pb := e.Group("/api/v1/public")
 
 	pb.POST("/user/login", controller.Login)
+	pb.POST("/user/logout", controller.Logout)
 	pb.POST("/user/register", controller.RegisterUser)
 	pb.POST("/user/forgot/search", controller.ForgotSearch)
 	pb.POST("/user/forgot/validate", controller.ForgotValidate)
@@ -81,6 +82,28 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/company/salePoint/create", controller.CreateCompanySalePoint)
 	ar.POST("/company/salePoint/update", controller.UpdateCompanySalePoint)
 	ar.POST("/company/salePoint/updateState", controller.UpdateStateCompanySalePoint)
+
+    // brand
+    ar.POST("/brand/by/id", controller.GetBrandByID)
+    ar.POST("/brand/paginate", controller.PaginateBrand)
+    ar.POST("/brand/create", controller.CreateBrand)
+    ar.POST("/brand/update", controller.UpdateBrand)
+    ar.POST("/brand/updateState", controller.UpdateStateBrand)
+
+    // patter
+    ar.POST("/pattern/by/id", controller.GetPatternByID)
+    ar.POST("/pattern/paginate", controller.PaginatePattern)
+    ar.POST("/pattern/create", controller.CreatePattern)
+    ar.POST("/pattern/update", controller.UpdatePattern)
+    ar.POST("/pattern/updateState", controller.UpdateStatePattern)
+
+    // patter
+    ar.POST("/category/by/id", controller.GetCategoryByID)
+    ar.POST("/category/all", controller.GetAllCategory)
+    ar.POST("/category/paginate", controller.PaginateCategory)
+    ar.POST("/category/create", controller.CreateCategory)
+    ar.POST("/category/update", controller.UpdateCategory)
+    ar.POST("/category/updateState", controller.UpdateStateCategory)
 
 	// Utils all
 	ar.GET("/util/additionalLegendType/all", controller.GetAllUtilAdditionalLegendType)

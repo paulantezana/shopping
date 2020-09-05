@@ -52,6 +52,11 @@ func Migrate() {
 		&models.UserLocalAuth{},
 		&models.UserWareHouseAuth{},
 
+		&models.Brand{},
+		&models.Pattern{},
+		&models.Category{},
+		&models.Product{},
+
 		&models.App{},
 		&models.AppAuthorization{},
 	)
@@ -83,12 +88,11 @@ func Migrate() {
 		db.Create(&models.AppAuthorization{Key: "inventory_new_inventory", Title: "Nuevo inventario", Icon: "plus", To: "", Description: "Venta", Action: "List", ParentId: 4})
 		db.Create(&models.AppAuthorization{Key: "users", Title: "Kardex", Icon: "audit", To: "", Description: "Venta", Action: "List", ParentId: 4})
 
-		db.Create(&models.AppAuthorization{Key: "maintenance_category", Title: "Categoria", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_unit_measure", Title: "Unidad de medida", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_brand", Title: "Marca", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_model", Title: "Modelo", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_product", Title: "Producto", Icon: "inbox", To: "", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_import", Title: "Importar", Icon: "heart", To: "", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_category", Title: "Categoria", Icon: "deployment-unit", To: "/admin/product/category", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_brand", Title: "Marca", Icon: "carry-out", To: "/admin/product/brand", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_pattern", Title: "Modelo", Icon: "thunderbolt", To: "/admin/product/pattern", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_product", Title: "Producto", Icon: "rest", To: "/admin/product", Description: "Venta", Action: "List", ParentId: 5})
+		db.Create(&models.AppAuthorization{Key: "maintenance_import", Title: "Importar", Icon: "cloud-upload", To: "/admin/product/import", Description: "Venta", Action: "List", ParentId: 5})
 
 		db.Create(&models.AppAuthorization{Key: "setting_company", Title: "Empresa", Icon: "bank", To: "/admin/company", Description: "Venta", Action: "List", ParentId: 6})
 		db.Create(&models.AppAuthorization{Key: "setting_subsidiary", Title: "Locales y series", Icon: "home", To: "/admin/company/local", Description: "Venta", Action: "List", ParentId: 6})
