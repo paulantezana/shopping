@@ -6,6 +6,7 @@ type Request struct {
 	Search      string `json:"search"`
 	CurrentPage uint   `json:"current_page"`
 	PageSize    uint   `json:"page_size"`
+	WareHouseId uint   `json:"ware_house_id"`
 	IDs         []uint `json:"i_ds"`
 }
 

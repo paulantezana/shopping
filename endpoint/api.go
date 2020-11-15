@@ -83,27 +83,46 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/company/salePoint/update", controller.UpdateCompanySalePoint)
 	ar.POST("/company/salePoint/updateState", controller.UpdateStateCompanySalePoint)
 
-    // brand
-    ar.POST("/brand/by/id", controller.GetBrandByID)
-    ar.POST("/brand/paginate", controller.PaginateBrand)
-    ar.POST("/brand/create", controller.CreateBrand)
-    ar.POST("/brand/update", controller.UpdateBrand)
-    ar.POST("/brand/updateState", controller.UpdateStateBrand)
+	// brand
+	ar.POST("/brand/by/id", controller.GetBrandByID)
+	ar.POST("/brand/all", controller.GetAllBrand)
+	ar.POST("/brand/paginate", controller.PaginateBrand)
+	ar.POST("/brand/create", controller.CreateBrand)
+	ar.POST("/brand/update", controller.UpdateBrand)
+	ar.POST("/brand/updateState", controller.UpdateStateBrand)
 
-    // patter
-    ar.POST("/pattern/by/id", controller.GetPatternByID)
-    ar.POST("/pattern/paginate", controller.PaginatePattern)
-    ar.POST("/pattern/create", controller.CreatePattern)
-    ar.POST("/pattern/update", controller.UpdatePattern)
-    ar.POST("/pattern/updateState", controller.UpdateStatePattern)
+	// patter
+	ar.POST("/pattern/by/id", controller.GetPatternByID)
+	ar.POST("/pattern/all", controller.GetAllPattern)
+	ar.POST("/pattern/paginate", controller.PaginatePattern)
+	ar.POST("/pattern/create", controller.CreatePattern)
+	ar.POST("/pattern/update", controller.UpdatePattern)
+	ar.POST("/pattern/updateState", controller.UpdateStatePattern)
 
-    // patter
-    ar.POST("/category/by/id", controller.GetCategoryByID)
-    ar.POST("/category/all", controller.GetAllCategory)
-    ar.POST("/category/paginate", controller.PaginateCategory)
-    ar.POST("/category/create", controller.CreateCategory)
-    ar.POST("/category/update", controller.UpdateCategory)
-    ar.POST("/category/updateState", controller.UpdateStateCategory)
+	// patter
+	ar.POST("/category/by/id", controller.GetCategoryByID)
+	ar.POST("/category/all", controller.GetAllCategory)
+	ar.POST("/category/paginate", controller.PaginateCategory)
+	ar.POST("/category/create", controller.CreateCategory)
+	ar.POST("/category/update", controller.UpdateCategory)
+	ar.POST("/category/updateState", controller.UpdateStateCategory)
+
+	// Product
+	ar.POST("/product/by/id", controller.GetProductByID)
+	ar.POST("/product/by/code", controller.GetProductByCode)
+	ar.POST("/product/paginate", controller.PaginateProduct)
+	ar.POST("/product/create", controller.CreateProduct)
+	ar.POST("/product/update", controller.UpdateProduct)
+	ar.POST("/product/updateState", controller.UpdateStateProduct)
+
+	// provider
+	ar.POST("/provider/by/id", controller.GetProviderByID)
+	ar.POST("/provider/all", controller.GetAllProvider)
+	ar.POST("/provider/search", controller.GetSearchProvider)
+	ar.POST("/provider/paginate", controller.PaginateProvider)
+	ar.POST("/provider/create", controller.CreateProvider)
+	ar.POST("/provider/update", controller.UpdateProvider)
+	ar.POST("/provider/updateState", controller.UpdateStateProvider)
 
 	// Utils all
 	ar.GET("/util/additionalLegendType/all", controller.GetAllUtilAdditionalLegendType)

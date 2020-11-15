@@ -139,7 +139,7 @@ func GetSearchUtilGeographicalLocation(c echo.Context) error {
 	utilGeographicalLocationShorts := make([]models.UtilGeographicalLocationShort, 0)
 
 	// Find users
-	if err := DB.Raw("SELECT * FROM (SELECT id, code, concat(department, '-', province, '-', district) as description  FROM util_geographical_locations) as geo WHERE description LIKE ?", "%"+request.Search+"%").
+	if err := DB.Raw("SELECT * FROM (SELECT id, code, concat(department, '-', province, '-', district) as description  FROM util_geographical_locations) as geo WHERE lower(description) LIKE lower(?) ", "%"+request.Search+"%").
 		Scan(&utilGeographicalLocationShorts).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}

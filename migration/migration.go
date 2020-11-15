@@ -55,7 +55,16 @@ func Migrate() {
 		&models.Brand{},
 		&models.Pattern{},
 		&models.Category{},
+
 		&models.Product{},
+		&models.ProductMedia{},
+		&models.ProductWareHouse{},
+
+		&models.Purchase{},
+		&models.PurchaseItem{},
+		&models.Provider{},
+
+		&models.Kardex{},
 
 		&models.App{},
 		&models.AppAuthorization{},
@@ -73,15 +82,15 @@ func Migrate() {
 		db.Create(&models.AppAuthorization{Key: "maintenance", Title: "Mantenimiento", Icon: "inbox", Description: "Venta", Action: "List"})
 		db.Create(&models.AppAuthorization{Key: "setting", Title: "Configuración", Icon: "setting", Description: "Venta", Action: "List"})
 
-		db.Create(&models.AppAuthorization{Key: "sale_new_sale", Title: "Nueva venta", Icon: "scan", To: "", Description: "Venta", Action: "List", ParentId: 1})
-		db.Create(&models.AppAuthorization{Key: "sale_credit_sale", Title: "Ventas a crédito", Icon: "credit-card", To: "", Description: "Venta", Action: "List", ParentId: 1})
-		db.Create(&models.AppAuthorization{Key: "sale_customer", Title: "Clientes", Icon: "user", To: "", Description: "Venta", Action: "List", ParentId: 1})
-		db.Create(&models.AppAuthorization{Key: "sale_report", Title: "Reporte", Icon: "bar-chart", To: "", Description: "Venta", Action: "List", ParentId: 1})
+		db.Create(&models.AppAuthorization{Key: "sale_new_sale", Title: "Nueva venta", Icon: "scan", To: "/admin/sale/newSale", Description: "Venta", Action: "List", ParentId: 1})
+		db.Create(&models.AppAuthorization{Key: "sale_credit_sale", Title: "Ventas a crédito", Icon: "credit-card", To: "/admin/sale/creditSale", Description: "Venta", Action: "List", ParentId: 1})
+		db.Create(&models.AppAuthorization{Key: "sale_customer", Title: "Clientes", Icon: "user", To: "/admin/sale/customer", Description: "Venta", Action: "List", ParentId: 1})
+		db.Create(&models.AppAuthorization{Key: "sale_report", Title: "Reporte", Icon: "bar-chart", To: "/admin/sale/report", Description: "Venta", Action: "List", ParentId: 1})
 
-		db.Create(&models.AppAuthorization{Key: "purchase_new_purchase", Title: "Nueva compra", Icon: "shop", To: "", Description: "Venta", Action: "List", ParentId: 2})
-		db.Create(&models.AppAuthorization{Key: "purchase_credit_purchase", Title: "Compras a credito", Icon: "credit-card", To: "", Description: "Venta", Action: "List", ParentId: 2})
-		db.Create(&models.AppAuthorization{Key: "purchase_provider", Title: "Proveedores", Icon: "user", To: "", Description: "Venta", Action: "List", ParentId: 2})
-		db.Create(&models.AppAuthorization{Key: "purchase_report", Title: "Reporte", Icon: "bar-chart", To: "", Description: "Venta", Action: "List", ParentId: 2})
+		db.Create(&models.AppAuthorization{Key: "purchase_new_purchase", Title: "Nueva compra", Icon: "shop", To: "/admin/purchase/newPurchase", Description: "Venta", Action: "List", ParentId: 2})
+		db.Create(&models.AppAuthorization{Key: "purchase_credit_purchase", Title: "Compras a credito", Icon: "credit-card", To: "/admin/purchase/creditPurchase", Description: "Venta", Action: "List", ParentId: 2})
+		db.Create(&models.AppAuthorization{Key: "purchase_provider", Title: "Proveedores", Icon: "user", To: "/admin/purchase/provider", Description: "Venta", Action: "List", ParentId: 2})
+		db.Create(&models.AppAuthorization{Key: "purchase_report", Title: "Reporte", Icon: "bar-chart", To: "/admin/purchase/report", Description: "Venta", Action: "List", ParentId: 2})
 
 		db.Create(&models.AppAuthorization{Key: "box_admin", Title: "Administrar", Icon: "dollar", To: "", Description: "Venta", Action: "List", ParentId: 3})
 

@@ -10,8 +10,8 @@ import (
 	"net/http"
 )
 
-// PaginateBrand function get all brands
-func PaginateBrand(c echo.Context) error {
+// PaginateProvider function get all providers
+func PaginateProvider(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
@@ -30,7 +30,7 @@ func PaginateBrand(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_brand"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -39,11 +39,11 @@ func PaginateBrand(c echo.Context) error {
 
 	// Check the number of matches
 	var total uint
-	brands := make([]models.Brand, 0)
+	providers := make([]models.Provider, 0)
 
 	// Find users
-	if err := DB.Where("company_id = ? AND lower(name) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
-		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&brands).
+	if err := DB.Where("company_id = ? AND lower(social_reason) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
+		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&providers).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -51,15 +51,15 @@ func PaginateBrand(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 		Success:  true,
-		Data:     brands,
+		Data:     providers,
 		Total:    total,
 		Current:  request.CurrentPage,
 		PageSize: request.PageSize,
 	})
 }
 
-// GetAllBrand function get all brands
-func GetAllBrand(c echo.Context) error {
+// GetAllProvider function get all providers
+func GetAllProvider(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
@@ -70,35 +70,35 @@ func GetAllBrand(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_brand"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
 	// Check the number of matches
-	brands := make([]models.Brand, 0)
+	providers := make([]models.Provider, 0)
 
 	// Find users
-	if err := DB.Where("company_id = ?", currentUser.CompanyId).Find(&brands).Error; err != nil {
+	if err := DB.Where("company_id = ?", currentUser.CompanyId).Find(&providers).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    brands,
+		Data:    providers,
 	})
 }
 
-// GetBrandByID function get brand by id
-func GetBrandByID(c echo.Context) error {
+// GetAllProvider function get all providers
+func GetSearchProvider(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
-	// Get data request
-	brand := models.Brand{}
-	if err := c.Bind(&brand); err != nil {
+	// request
+	request := utilities.Request{}
+	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -109,32 +109,71 @@ func GetBrandByID(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_brand"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
+
+	// Check the number of matches
+	providers := make([]models.Provider, 0)
+
+	// Find users
+	if err := DB.Where("company_id = ? AND lower(social_reason) LIKE lower(?) ", currentUser.CompanyId, "%"+request.Search+"%").Find(&providers).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
+
+	// Return response
+	return c.JSON(http.StatusCreated, utilities.Response{
+		Success: true,
+		Data:    providers,
+	})
+}
+
+// GetProviderByID function get provider by id
+func GetProviderByID(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
+	// Get data request
+	providerObj := models.Provider{}
+	if err := c.Bind(&providerObj); err != nil {
+		return c.JSON(http.StatusBadRequest, utilities.Response{
+			Message: "La estructura no es válida",
+		})
+	}
+
+	// Get connection
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
 	// Execute instructions
-	if err := DB.First(&brand, brand.ID).Error; err != nil {
+	if err := DB.First(&providerObj, providerObj.ID).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    brand,
+		Data:    providerObj,
 	})
 }
 
-// CreateBrand function create new brand
-func CreateBrand(c echo.Context) error {
+// CreateProvider function create new provider
+func CreateProvider(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
-	brand := models.Brand{}
-	if err := c.Bind(&brand); err != nil {
+	providerObj := models.Provider{}
+	if err := c.Bind(&providerObj); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -145,35 +184,35 @@ func CreateBrand(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_brand"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
-	// Insert brand in database
-	brand.CreatedUserId = currentUser.ID
-	brand.CompanyId = currentUser.CompanyId
-	if err := DB.Create(&brand).Error; err != nil {
+	// Insert provider in database
+	providerObj.CreatedUserId = currentUser.ID
+	providerObj.CompanyId = currentUser.CompanyId
+	if err := DB.Create(&providerObj).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    brand.ID,
-		Message: fmt.Sprintf("La marca %s se registro exitosamente", brand.Name),
+		Data:    providerObj.ID,
+		Message: fmt.Sprintf("La marca %s se registro exitosamente", providerObj.SocialReason),
 	})
 }
 
-// UpdateBrand function update current brand
-func UpdateBrand(c echo.Context) error {
+// UpdateProvider function update current provider
+func UpdateProvider(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
-	brand := models.Brand{}
-	if err := c.Bind(&brand); err != nil {
+	providerObj := models.Provider{}
+	if err := c.Bind(&providerObj); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -184,25 +223,25 @@ func UpdateBrand(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_brand"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
-	// Validation brand exist
-	aux := models.Brand{ID: brand.ID}
+	// Validation provider exist
+	aux := models.Provider{ID: providerObj.ID}
 	if DB.First(&aux).RecordNotFound() {
 		return c.JSON(http.StatusOK, utilities.Response{
-			Message: fmt.Sprintf("No se encontró el registro con id %d", brand.ID),
+			Message: fmt.Sprintf("No se encontró el registro con id %d", providerObj.ID),
 		})
 	}
 
-	// Update brand in database
-	brand.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&brand).Update(brand).Error; err != nil {
+	// Update provider in database
+	providerObj.UpdatedUserId = currentUser.ID
+	if err := DB.Model(&providerObj).Update(providerObj).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
-	if !brand.State {
-		if err := DB.Model(brand).UpdateColumn("state", false).Error; err != nil {
+	if !providerObj.State {
+		if err := DB.Model(providerObj).UpdateColumn("state", false).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
@@ -211,20 +250,20 @@ func UpdateBrand(c echo.Context) error {
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
 		Message: "La marca se actualizó correctamente",
-		Data:    brand.ID,
+		Data:    providerObj.ID,
 	})
 }
 
-// UpdateStateBrand function update current brand
-func UpdateStateBrand(c echo.Context) error {
+// UpdateStateProvider function update current provider
+func UpdateStateProvider(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
-	brand := models.Brand{}
-	if err := c.Bind(&brand); err != nil {
+	providerObj := models.Provider{}
+	if err := c.Bind(&providerObj); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -235,17 +274,17 @@ func UpdateStateBrand(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_brand"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
-	// Update brand in database
-	if !brand.State {
-		if err := DB.Model(brand).UpdateColumn("state", false).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
+	// Update provider in database
+	if !providerObj.State {
+		if err := DB.Model(providerObj).UpdateColumn("state", false).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	} else {
-		if err := DB.Model(brand).UpdateColumn("state", true).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
+		if err := DB.Model(providerObj).UpdateColumn("state", true).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
@@ -254,6 +293,6 @@ func UpdateStateBrand(c echo.Context) error {
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
 		Message: "La marca se actualizó correctamente",
-		Data:    brand.ID,
+		Data:    providerObj.ID,
 	})
 }

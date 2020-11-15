@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-    "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"

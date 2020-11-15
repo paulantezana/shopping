@@ -1,3 +1,9 @@
+# Database
+```sql
+CREATE ROLE yoel LOGIN PASSWORD 'cascadesheet'
+CREATE DATABASE shopping OWNER yoel
+```
+
 ```bash
 sudo vim /etc/systemd/system/shopping.service
 ```
