@@ -111,6 +111,7 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/product/by/id", controller.GetProductByID)
 	ar.POST("/product/by/code", controller.GetProductByCode)
 	ar.POST("/product/paginate", controller.PaginateProduct)
+	ar.POST("/product/paginate/search", controller.PaginateProductSearch)
 	ar.POST("/product/create", controller.CreateProduct)
 	ar.POST("/product/update", controller.UpdateProduct)
 	ar.POST("/product/updateState", controller.UpdateStateProduct)
@@ -123,6 +124,12 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/provider/create", controller.CreateProvider)
 	ar.POST("/provider/update", controller.UpdateProvider)
 	ar.POST("/provider/updateState", controller.UpdateStateProvider)
+
+	// Purchase
+    ar.POST("/purchase/item/by/purchase/id", controller.GetPurchaseItemByPurchaseID)
+    ar.POST("/purchase/newPurchase", controller.NewPurchase)
+    ar.POST("/purchase/cancel", controller.CancelPurchase)
+    ar.POST("/purchase/paginate", controller.PaginatePurchase)
 
 	// Utils all
 	ar.GET("/util/additionalLegendType/all", controller.GetAllUtilAdditionalLegendType)
@@ -146,4 +153,5 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/util/geographicalLocation/search", controller.GetSearchUtilGeographicalLocation)
 	ar.POST("/util/productType/search", controller.GetAllUtilGeographicalLocation)
 	ar.POST("/util/productType/search", controller.GetAllUtilGeographicalLocation)
+	ar.POST("/util/queryPeru", controller.QueryDocument)
 }

@@ -4,7 +4,7 @@ import "time"
 
 type ProductWareHouse struct {
 	ID          uint    `json:"id" gorm:"primary_key"`
-	Stock       float32 `json:"stock"`
+	Stock       float64 `json:"stock"`
 	ProductId   uint    `json:"product_id"`
 	WareHouseId uint    `json:"ware_house_id"`
 

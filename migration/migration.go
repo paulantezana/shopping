@@ -116,6 +116,10 @@ func Migrate() {
 		db.Create(&models.UtilDocumentType{Code: "07", Description: "NOTA DE CREDITO"})
 		db.Create(&models.UtilDocumentType{Code: "08", Description: "NOTA DE DEBITO"})
 		db.Create(&models.UtilDocumentType{Code: "09", Description: "GUIA DE REMISIÓN REMITENTE"})
+		db.Create(&models.UtilDocumentType{Code: "TK", Description: "TIKET", Sunat: false})
+		db.Create(&models.UtilDocumentType{Code: "NP", Description: "NOTA PEDIDO", Sunat: false})
+		db.Create(&models.UtilDocumentType{Code: "CT", Description: "COTIZACIÓN", Sunat: false})
+		db.Create(&models.UtilDocumentType{Code: "OT", Description: "OTROS", Sunat: false})
 
 		// Currency type
 		db.Create(&models.UtilCurrencyType{Code: "PEN", Description: "SOLES", Symbol: "S/"})

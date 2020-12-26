@@ -8,9 +8,9 @@ type Purchase struct {
 	DateOfPurchase  time.Time `json:"date_of_purchase"`
 	Serie           string    `json:"serie"`
 	Number          string    `json:"number"`
-	PdfFormat       string    `json:"pdf_format" gorm:"default: ''"`
 	Guide           string    `json:"guide" `
 	Observation     string    `json:"observation" gorm:"default: ''"`
+    CancelObservation     string    `json:"cancel_observation" gorm:"default: ''"`
 	TotalUnaffected float64   `json:"total_unaffected" gorm:"default: 0.00"`
 	TotalTaxed      float64   `json:"total_taxed" gorm:"default: 0.00"`
 	TotalIgv        float64   `json:"total_igv" gorm:"default: 0.00"`
@@ -19,7 +19,9 @@ type Purchase struct {
 	ProviderId         uint `json:"provider_id"`
 	CompanyWareHouseId uint `json:"company_ware_house_id"`
 	UtilCurrencyTypeId uint `json:"util_currency_type_id"`
-	UtilDocumentTypeId   uint `json:"util_document_type_id"`
+	UtilDocumentTypeId uint `json:"util_document_type_id"`
+	CompanyId uint `json:"company_id"`
+	UserId uint `json:"user_id"`
 
 	CreatedAt     time.Time `json:"-"`
 	UpdatedAt     time.Time `json:"-"`

@@ -19,4 +19,7 @@ type Provider struct {
 	CreatedUserId uint      `json:"-"`
 	UpdatedUserId uint      `json:"-"`
 	State         bool      `json:"state" gorm:"default: true"`
+
+	// Aux
+	SearchText string `json:"search_text" gorm:"-"`
 }

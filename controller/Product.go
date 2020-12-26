@@ -60,6 +60,56 @@ func PaginateProduct(c echo.Context) error {
 	})
 }
 
+// PaginateProduct function get all products
+func PaginateProductSearch(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
+	// Get data request
+	request := utilities.Request{}
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, utilities.Response{
+			Message: "La estructura no es válida",
+		})
+	}
+
+	// Get connection
+	DB := provider.GetConnection()
+	defer DB.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
+
+	// Pagination calculate
+	offset := request.Validate()
+
+	// Check the number of matches
+	var total uint
+	products := make([]models.Product, 0)
+
+	// Find products
+	if err := DB.Table("products").Select("products.*, product_ware_houses.stock").
+		Joins("LEFT JOIN product_ware_houses ON products.id = product_ware_houses.product_id AND product_ware_houses.ware_house_id = ?", request.WareHouseId).
+		Where("products.company_id = ? AND (lower(products.title) LIKE lower(?) OR lower(products.barcode) LIKE lower(?) OR lower(products.barcode_aux) LIKE lower(?)) AND products.state = true", currentUser.CompanyId, "%"+request.Search+"%", "%"+request.Search+"%", "%"+request.Search+"%").
+		Order("products.id desc").Offset(offset).Limit(request.PageSize).Scan(&products).
+		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
+
+	// Return response
+	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
+		Success:  true,
+		Data:     products,
+		Total:    total,
+		Current:  request.CurrentPage,
+		PageSize: request.PageSize,
+	})
+}
+
 // GetProductByID function get product by id
 func GetProductByID(c echo.Context) error {
 	// Get user token authenticate
@@ -121,7 +171,7 @@ func GetProductByCode(c echo.Context) error {
 	}
 
 	// Execute instructions
-	DB.Where("barcode = ? AND state = 1", product.Barcode).First(&product)
+	DB.Where("lower(barcode) = lower(?) AND state = true", product.Barcode).First(&product)
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
@@ -165,7 +215,7 @@ func CreateProduct(c echo.Context) error {
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
 		Data:    product.ID,
-		Message: fmt.Sprintf("La marca %s se registro exitosamente", product.Title),
+		Message: fmt.Sprintf("El producto %s se registro exitosamente", product.Title),
 	})
 }
 
@@ -203,11 +253,12 @@ func UpdateProduct(c echo.Context) error {
 
 	// Update product in database
 	product.UpdatedUserId = currentUser.ID
+	product.State = aux.State
 	if err := DB.Model(&product).Update(product).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !product.State {
-		if err := DB.Model(product).UpdateColumn("state", false).Error; err != nil {
+		if err := DB.Model(&product).UpdateColumn("state", false).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
@@ -215,7 +266,7 @@ func UpdateProduct(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Message: "La marca se actualizó correctamente",
+		Message: "El producto se actualizó correctamente",
 		Data:    product.ID,
 	})
 }
@@ -258,7 +309,7 @@ func UpdateStateProduct(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Message: "La marca se actualizó correctamente",
+		Message: "El producto se actualizó correctamente",
 		Data:    product.ID,
 	})
 }

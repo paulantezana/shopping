@@ -361,7 +361,7 @@ func GetMenuAdminByUserId(c echo.Context) error {
 
 		// Get Sale WareHouse
 		wareHouseAuths := make([]configWareHouse, 0)
-		if err := DB.Raw("SELECT cwh.* FROM company_ware_houses as cwh "+
+		if err := DB.Raw("SELECT cwh.id, cwh.description FROM company_ware_houses as cwh "+
 			" INNER JOIN user_ware_house_auths as uwha ON cwh.id = uwha.company_ware_house_id AND uwha.user_id = ? AND uwha.state = true "+
 			" WHERE cwh.state = true AND cwh.company_local_id = ? AND cwh.company_id = ?", currentUser.ID, lAuth.ID, currentUser.CompanyId).Scan(&wareHouseAuths).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})

@@ -11,7 +11,8 @@
         "key": "Mc]-7EEP}vJ{q{P@"
     },
     "Global": {
-        "pageLimit": 20
+        "pageLimit": 20,
+        "QueryApi": "eyJ1c2VySWQiOjEsInVzZXJUb2tlbklkIjoxfQ.KEqxZNc0_PqcsJj786nZC1Knh8R52fUehftszS5x9vhGbrmTz-66DJXfVWgyo3jxKva35kHOuEZwqOb02Ysa7XARgNbtVI--MJsPe_6xl_kQaN6vrf731B7-8qxkrNTUU8s7yChDOCKmoQNVAFOwNIEz7TH71zgMw6SXZoIf1GA"
     },
     "Email": {
         "name": "REVIEW",

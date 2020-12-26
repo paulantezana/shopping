@@ -117,9 +117,11 @@ func GetSearchProvider(c echo.Context) error {
 	providers := make([]models.Provider, 0)
 
 	// Find users
-	if err := DB.Where("company_id = ? AND lower(social_reason) LIKE lower(?) ", currentUser.CompanyId, "%"+request.Search+"%").Find(&providers).Error; err != nil {
-		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-	}
+    if err := DB.Raw("SELECT * FROM (SELECT *, CONCAT(document_number, ' ', social_reason) as search_text FROM providers) as provider_aux " +
+        " WHERE provider_aux.company_id = ? AND lower(provider_aux.search_text) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
+	    Scan(&providers).Error; err != nil {
+        return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+    }
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{

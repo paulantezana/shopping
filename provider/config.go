@@ -27,20 +27,21 @@ type Email struct {
 // Global config
 type Global struct {
 	PageLimit uint
-}
-
-// Config config
-type Config struct {
-	Database Database
-	Email    Email
-	Server   Server
-	Global   Global
+    QueryApi string
 }
 
 // Server condif
 type Server struct {
 	Port string
 	Key  string
+}
+
+// Config config
+type Config struct {
+    Database Database
+    Email    Email
+    Server   Server
+    Global   Global
 }
 
 // GetConfig return configuration from database json
