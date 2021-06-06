@@ -11,5 +11,6 @@ type InvoiceCustomer struct {
 	PhoneSend      bool   `json:"phone_send" gorm:"default: false"`
 
 	InvoiceId                  uint `json:"invoice_id" gorm:"unique; not null"`
+	CustomerId uint `json:"customer_id"`
 	UtilIdentityDocumentTypeId uint `json:"util_identity_document_type_id" gorm:"not null"`
 }

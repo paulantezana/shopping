@@ -13,6 +13,8 @@ type Kardex struct {
 	Destination         string    `json:"destination"`
 	Description         string    `json:"description"`
 	DocumentDescription string    `json:"document_description"`
+	IsLast              bool      `json:"is_last"`
+	IsIncome            bool      `json:"is_income"`
 
 	UserId             uint `json:"user_id"`
 	ProductId          uint `json:"product_id"`

@@ -42,8 +42,8 @@ func PaginateProduct(c echo.Context) error {
 	products := make([]models.Product, 0)
 
 	// Find products
-	if err := DB.Table("products").Select("products.*, product_ware_houses.stock").
-		Joins("LEFT JOIN product_ware_houses ON products.id = product_ware_houses.product_id AND product_ware_houses.ware_house_id = ?", request.WareHouseId).
+	if err := DB.Table("products").Select("products.*, kardexes.stock").
+		Joins("LEFT JOIN kardexes ON products.id = kardexes.product_id AND kardexes.company_ware_house_id = ? AND kardexes.is_last = true", request.WareHouseId).
 		Where("products.company_id = ? AND lower(products.title) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
 		Order("products.id desc").Offset(offset).Limit(request.PageSize).Scan(&products).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
@@ -92,9 +92,10 @@ func PaginateProductSearch(c echo.Context) error {
 	products := make([]models.Product, 0)
 
 	// Find products
-	if err := DB.Table("products").Select("products.*, product_ware_houses.stock").
-		Joins("LEFT JOIN product_ware_houses ON products.id = product_ware_houses.product_id AND product_ware_houses.ware_house_id = ?", request.WareHouseId).
-		Where("products.company_id = ? AND (lower(products.title) LIKE lower(?) OR lower(products.barcode) LIKE lower(?) OR lower(products.barcode_aux) LIKE lower(?)) AND products.state = true", currentUser.CompanyId, "%"+request.Search+"%", "%"+request.Search+"%", "%"+request.Search+"%").
+	if err := DB.Table("products").Select("products.*, kardexes.stock").
+		Joins("LEFT JOIN kardexes ON products.id = kardexes.product_id AND kardexes.company_ware_house_id = ? AND kardexes.is_last = true", request.WareHouseId).
+		Joins("LEFT JOIN util_unit_measure_types ON products.purchase_util_unit_measure_type_id = util_unit_measure_types.id").
+		Where("products.company_id = ? AND (lower(products.title) LIKE lower(?) OR lower(products.barcode) LIKE lower(?)) AND products.state = true", currentUser.CompanyId, "%"+request.Search+"%", "%"+request.Search+"%").
 		Order("products.id desc").Offset(offset).Limit(request.PageSize).Scan(&products).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
@@ -146,16 +147,16 @@ func GetProductByID(c echo.Context) error {
 	})
 }
 
-// GetProductByCode function get product by id
-func GetProductByCode(c echo.Context) error {
+// GetProductSearch function get product by id
+func GetProductSearch(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
-	product := models.Product{}
-	if err := c.Bind(&product); err != nil {
+	request := utilities.Request{}
+	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -170,13 +171,20 @@ func GetProductByCode(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
-	// Execute instructions
-	DB.Where("lower(barcode) = lower(?) AND state = true", product.Barcode).First(&product)
+	// Check the number of matches
+	products := make([]models.Product, 0)
+
+	// Find users
+	if err := DB.Raw("SELECT * FROM (SELECT *, CONCAT(barcode, ' ', title) as search_text FROM products) as product_aux "+
+		" WHERE product_aux.company_id = ? AND lower(product_aux.search_text) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
+		Scan(&products).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    product,
+		Data:    products,
 	})
 }
 

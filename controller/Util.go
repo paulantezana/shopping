@@ -29,12 +29,12 @@ func GetAllUtilAdditionalLegendType(c echo.Context) error {
 	})
 }
 
-// GetAllUtilCatAffectationIgvType --
-func GetAllUtilCatAffectationIgvType(c echo.Context) error {
+// GetAllUtilAffectationIgvType --
+func GetAllUtilAffectationIgvType(c echo.Context) error {
 	DB := provider.GetConnection()
 	defer DB.Close()
 
-	util := make([]models.UtilCatAffectationIgvType, 0)
+	util := make([]models.UtilAffectationIgvType, 0)
 
 	// Find users
 	if err := DB.Find(&util).Error; err != nil {

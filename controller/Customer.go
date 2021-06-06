@@ -5,13 +5,13 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/paulantezana/shopping/models"
-	"github.com/paulantezana/shopping/provider"
-	"github.com/paulantezana/shopping/utilities"
+    "github.com/paulantezana/shopping/provider"
+    "github.com/paulantezana/shopping/utilities"
 	"net/http"
 )
 
-// PaginateProvider function get all providers
-func PaginateProvider(c echo.Context) error {
+// PaginateCustomer function get all customers
+func PaginateCustomer(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
@@ -30,7 +30,7 @@ func PaginateProvider(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -39,11 +39,11 @@ func PaginateProvider(c echo.Context) error {
 
 	// Check the number of matches
 	var total uint
-	providers := make([]models.Provider, 0)
+	customers := make([]models.Customer, 0)
 
 	// Find users
 	if err := DB.Where("company_id = ? AND lower(social_reason) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
-		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&providers).
+		Order("id desc").Offset(offset).Limit(request.PageSize).Find(&customers).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -51,15 +51,15 @@ func PaginateProvider(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 		Success:  true,
-		Data:     providers,
+		Data:     customers,
 		Total:    total,
 		Current:  request.CurrentPage,
 		PageSize: request.PageSize,
 	})
 }
 
-// GetAllProvider function get all providers
-func GetAllProvider(c echo.Context) error {
+// GetAllCustomer function get all customers
+func GetAllCustomer(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
@@ -70,27 +70,27 @@ func GetAllProvider(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
 	// Check the number of matches
-	providers := make([]models.Provider, 0)
+	customers := make([]models.Customer, 0)
 
 	// Find users
-	if err := DB.Where("company_id = ?", currentUser.CompanyId).Find(&providers).Error; err != nil {
+	if err := DB.Where("company_id = ?", currentUser.CompanyId).Find(&customers).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    providers,
+		Data:    customers,
 	})
 }
 
-// GetAllProvider function get all providers
-func GetSearchProvider(c echo.Context) error {
+// GetAllCustomer function get all customers
+func GetSearchCustomer(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
@@ -109,37 +109,37 @@ func GetSearchProvider(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
 	// Check the number of matches
-	providers := make([]models.Provider, 0)
+	customers := make([]models.Customer, 0)
 
 	// Find users
-	if err := DB.Raw("SELECT * FROM (SELECT *, CONCAT(document_number, ' ', social_reason) as search_text FROM providers) as provider_aux "+
-		" WHERE provider_aux.company_id = ? AND lower(provider_aux.search_text) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
-		Scan(&providers).Error; err != nil {
+	if err := DB.Raw("SELECT * FROM (SELECT *, CONCAT(document_number, ' ', social_reason) as search_text FROM customers) as customer_aux "+
+		" WHERE customer_aux.company_id = ? AND lower(customer_aux.search_text) LIKE lower(?)", currentUser.CompanyId, "%"+request.Search+"%").
+		Scan(&customers).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    providers,
+		Data:    customers,
 	})
 }
 
-// GetProviderByID function get provider by id
-func GetProviderByID(c echo.Context) error {
+// GetCustomerByID function get customer by id
+func GetCustomerByID(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
-	providerObj := models.Provider{}
-	if err := c.Bind(&providerObj); err != nil {
+	customerObj := models.Customer{}
+	if err := c.Bind(&customerObj); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -150,32 +150,32 @@ func GetProviderByID(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
 	// Execute instructions
-	if err := DB.First(&providerObj, providerObj.ID).Error; err != nil {
+	if err := DB.First(&customerObj, customerObj.ID).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    providerObj,
+		Data:    customerObj,
 	})
 }
 
-// CreateProvider function create new provider
-func CreateProvider(c echo.Context) error {
+// CreateCustomer function create new customer
+func CreateCustomer(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
-	providerObj := models.Provider{}
-	if err := c.Bind(&providerObj); err != nil {
+	customerObj := models.Customer{}
+	if err := c.Bind(&customerObj); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -186,35 +186,35 @@ func CreateProvider(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
-	// Insert provider in database
-	providerObj.CreatedUserId = currentUser.ID
-	providerObj.CompanyId = currentUser.CompanyId
-	if err := DB.Create(&providerObj).Error; err != nil {
+	// Insert customer in database
+	customerObj.CreatedUserId = currentUser.ID
+	customerObj.CompanyId = currentUser.CompanyId
+	if err := DB.Create(&customerObj).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
-		Data:    providerObj.ID,
-		Message: fmt.Sprintf("La marca %s se registro exitosamente", providerObj.SocialReason),
+		Data:    customerObj.ID,
+		Message: fmt.Sprintf("El cliente %s se registro exitosamente", customerObj.SocialReason),
 	})
 }
 
-// UpdateProvider function update current provider
-func UpdateProvider(c echo.Context) error {
+// UpdateCustomer function update current customer
+func UpdateCustomer(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
-	providerObj := models.Provider{}
-	if err := c.Bind(&providerObj); err != nil {
+	customerObj := models.Customer{}
+	if err := c.Bind(&customerObj); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -225,25 +225,25 @@ func UpdateProvider(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
-	// Validation provider exist
-	aux := models.Provider{ID: providerObj.ID}
+	// Validation customer exist
+	aux := models.Customer{ID: customerObj.ID}
 	if DB.First(&aux).RecordNotFound() {
 		return c.JSON(http.StatusOK, utilities.Response{
-			Message: fmt.Sprintf("No se encontró el registro con id %d", providerObj.ID),
+			Message: fmt.Sprintf("No se encontró el registro con id %d", customerObj.ID),
 		})
 	}
 
-	// Update provider in database
-	providerObj.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&providerObj).Update(providerObj).Error; err != nil {
+	// Update customer in database
+	customerObj.UpdatedUserId = currentUser.ID
+	if err := DB.Model(&customerObj).Update(customerObj).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
-	if !providerObj.State {
-		if err := DB.Model(providerObj).UpdateColumn("state", false).Error; err != nil {
+	if !customerObj.State {
+		if err := DB.Model(customerObj).UpdateColumn("state", false).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
@@ -251,21 +251,21 @@ func UpdateProvider(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Message: "La marca se actualizó correctamente",
-		Data:    providerObj.ID,
+        Message: fmt.Sprintf("El cliente %s se actualizó correctamente", customerObj.SocialReason),
+		Data:    customerObj.ID,
 	})
 }
 
-// UpdateStateProvider function update current provider
-func UpdateStateProvider(c echo.Context) error {
+// UpdateStateCustomer function update current customer
+func UpdateStateCustomer(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
 	currentUser := claims.User
 
 	// Get data request
-	providerObj := models.Provider{}
-	if err := c.Bind(&providerObj); err != nil {
+	customerObj := models.Customer{}
+	if err := c.Bind(&customerObj); err != nil {
 		return c.JSON(http.StatusBadRequest, utilities.Response{
 			Message: "La estructura no es válida",
 		})
@@ -276,17 +276,17 @@ func UpdateStateProvider(c echo.Context) error {
 	defer DB.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
-	// Update provider in database
-	if !providerObj.State {
-		if err := DB.Model(providerObj).UpdateColumn("state", false).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
+	// Update customer in database
+	if !customerObj.State {
+		if err := DB.Model(customerObj).UpdateColumn("state", false).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	} else {
-		if err := DB.Model(providerObj).UpdateColumn("state", true).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
+		if err := DB.Model(customerObj).UpdateColumn("state", true).UpdateColumn("updated_user_id", currentUser.ID).Error; err != nil {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
@@ -294,7 +294,7 @@ func UpdateStateProvider(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-		Message: "La marca se actualizó correctamente",
-		Data:    providerObj.ID,
+		Message: "El cliente se actualizó correctamente",
+		Data:    customerObj.ID,
 	})
 }

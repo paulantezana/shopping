@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/paulantezana/shopping/endpoint"
 	"net/http"
 	"os"
 
@@ -8,7 +9,6 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/paulantezana/shopping/endpoint"
 	"github.com/paulantezana/shopping/migration"
 )
 

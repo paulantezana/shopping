@@ -15,7 +15,7 @@ func Migrate() {
 
 	db.Debug().AutoMigrate(
 		&models.UtilAdditionalLegendType{},
-		&models.UtilCatAffectationIgvType{},
+		&models.UtilAffectationIgvType{},
 		&models.UtilCreditDebitType{},
 		&models.UtilCurrencyType{},
 		&models.UtilDocumentType{},
@@ -30,6 +30,8 @@ func Migrate() {
 		&models.UtilTransportModeType{},
 		&models.UtilTributeType{},
 		&models.UtilUnitMeasureType{},
+
+		&models.PaymentType{},
 
 		&models.Invoice{},
 		&models.InvoiceItem{},
@@ -52,17 +54,14 @@ func Migrate() {
 		&models.UserLocalAuth{},
 		&models.UserWareHouseAuth{},
 
-		&models.Brand{},
-		&models.Pattern{},
 		&models.Category{},
-
 		&models.Product{},
 		&models.ProductMedia{},
-		&models.ProductWareHouse{},
 
 		&models.Purchase{},
 		&models.PurchaseItem{},
 		&models.Provider{},
+		&models.Customer{},
 
 		&models.Kardex{},
 
@@ -88,18 +87,16 @@ func Migrate() {
 		db.Create(&models.AppAuthorization{Key: "sale_report", Title: "Reporte", Icon: "bar-chart", To: "/admin/sale/report", Description: "Venta", Action: "List", ParentId: 1})
 
 		db.Create(&models.AppAuthorization{Key: "purchase_new_purchase", Title: "Nueva compra", Icon: "shop", To: "/admin/purchase/newPurchase", Description: "Venta", Action: "List", ParentId: 2})
-		db.Create(&models.AppAuthorization{Key: "purchase_credit_purchase", Title: "Compras a credito", Icon: "credit-card", To: "/admin/purchase/creditPurchase", Description: "Venta", Action: "List", ParentId: 2})
+		//db.Create(&models.AppAuthorization{Key: "purchase_credit_purchase", Title: "Compras a credito", Icon: "credit-card", To: "/admin/purchase/creditPurchase", Description: "Venta", Action: "List", ParentId: 2})
 		db.Create(&models.AppAuthorization{Key: "purchase_provider", Title: "Proveedores", Icon: "user", To: "/admin/purchase/provider", Description: "Venta", Action: "List", ParentId: 2})
 		db.Create(&models.AppAuthorization{Key: "purchase_report", Title: "Reporte", Icon: "bar-chart", To: "/admin/purchase/report", Description: "Venta", Action: "List", ParentId: 2})
 
 		db.Create(&models.AppAuthorization{Key: "box_admin", Title: "Administrar", Icon: "dollar", To: "", Description: "Venta", Action: "List", ParentId: 3})
 
-		db.Create(&models.AppAuthorization{Key: "inventory_new_inventory", Title: "Nuevo inventario", Icon: "plus", To: "", Description: "Venta", Action: "List", ParentId: 4})
-		db.Create(&models.AppAuthorization{Key: "users", Title: "Kardex", Icon: "audit", To: "", Description: "Venta", Action: "List", ParentId: 4})
+		//db.Create(&models.AppAuthorization{Key: "inventory_new_inventory", Title: "Nuevo inventario", Icon: "plus", To: "/admin/inventory", Description: "Venta", Action: "List", ParentId: 4})
+		db.Create(&models.AppAuthorization{Key: "inventory_kardex", Title: "Kardex", Icon: "audit", To: "/admin/inventory/kardex", Description: "Venta", Action: "List", ParentId: 4})
 
 		db.Create(&models.AppAuthorization{Key: "maintenance_category", Title: "Categoria", Icon: "deployment-unit", To: "/admin/product/category", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_brand", Title: "Marca", Icon: "carry-out", To: "/admin/product/brand", Description: "Venta", Action: "List", ParentId: 5})
-		db.Create(&models.AppAuthorization{Key: "maintenance_pattern", Title: "Modelo", Icon: "thunderbolt", To: "/admin/product/pattern", Description: "Venta", Action: "List", ParentId: 5})
 		db.Create(&models.AppAuthorization{Key: "maintenance_product", Title: "Producto", Icon: "rest", To: "/admin/product", Description: "Venta", Action: "List", ParentId: 5})
 		db.Create(&models.AppAuthorization{Key: "maintenance_import", Title: "Importar", Icon: "cloud-upload", To: "/admin/product/import", Description: "Venta", Action: "List", ParentId: 5})
 
@@ -123,7 +120,7 @@ func Migrate() {
 
 		// Currency type
 		db.Create(&models.UtilCurrencyType{Code: "PEN", Description: "SOLES", Symbol: "S/"})
-		db.Create(&models.UtilCurrencyType{Code: "USD", Description: "DÓLARES AMERICANOS", Symbol: "$"})
+		db.Create(&models.UtilCurrencyType{Code: "USD", Description: "DÓLARES", Symbol: "$"})
 		db.Create(&models.UtilCurrencyType{Code: "EUR", Description: "EURO", Symbol: "€"})
 		db.Create(&models.UtilCurrencyType{Code: "JPY", Description: "YEN", Symbol: "¥"})
 
@@ -204,9 +201,9 @@ func Migrate() {
 
 		// Identity type
 		db.Create(&models.UtilIdentityDocumentType{Code: "0", Description: "0 NO DOMICILIADO, SIN RUC (EXPORTACIÓN)"})
-		db.Create(&models.UtilIdentityDocumentType{Code: "1", Description: "1 DNI - DOC. NACIONAL DE IDENTIDAD"})
+		db.Create(&models.UtilIdentityDocumentType{Code: "1", Description: "1 DNI"})
 		db.Create(&models.UtilIdentityDocumentType{Code: "4", Description: "4 CARNET DE EXTRANJERIA"})
-		db.Create(&models.UtilIdentityDocumentType{Code: "6", Description: "6 RUC - REG. UNICO DE CONTRIBUYENTES"})
+		db.Create(&models.UtilIdentityDocumentType{Code: "6", Description: "6 RUC"})
 		db.Create(&models.UtilIdentityDocumentType{Code: "7", Description: "7 PASAPORTE"})
 		db.Create(&models.UtilIdentityDocumentType{Code: "A", Description: "A CED. DIPLOMATICA DE IDENTIDAD"})
 		db.Create(&models.UtilIdentityDocumentType{Code: "B", Description: "B DOC.IDENT.PAIS.RESIDENCIA-NO.D"})
@@ -350,6 +347,15 @@ func Migrate() {
 		db.Create(&models.UtilSubjectDetractionType{Code: "040", Description: "Bien inmueble gravado con IGV"})
 		db.Create(&models.UtilSubjectDetractionType{Code: "041", Description: "Plomo"})
 		db.Create(&models.UtilSubjectDetractionType{Code: "099", Description: "Ley 30737"})
+
+		// Types
+		db.Create(&models.PaymentType{Code: "EF", Description: "Efectivo"})
+		db.Create(&models.PaymentType{Code: "CH", Description: "Cheque"})
+		db.Create(&models.PaymentType{Code: "CR", Description: "Crédito"})
+		db.Create(&models.PaymentType{Code: "TR", Description: "Transferencia"})
+		db.Create(&models.PaymentType{Code: "VA", Description: "Vales"})
+		db.Create(&models.PaymentType{Code: "TA", Description: "Tarjeta"})
+		db.Create(&models.PaymentType{Code: "AN", Description: "Anticipo"})
 
 		// Init Value
 		db.Create(&models.UtilGeographicalLocation{Code: "010101", District: "Chachapoyas", Province: "Chachapoyas", Department: "Amazonas"})

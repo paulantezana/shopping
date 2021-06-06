@@ -27,7 +27,7 @@ type Email struct {
 // Global config
 type Global struct {
 	PageLimit uint
-    QueryApi string
+	QueryApi  string
 }
 
 // Server condif
@@ -38,10 +38,10 @@ type Server struct {
 
 // Config config
 type Config struct {
-    Database Database
-    Email    Email
-    Server   Server
-    Global   Global
+	Database Database
+	Email    Email
+	Server   Server
+	Global   Global
 }
 
 // GetConfig return configuration from database json

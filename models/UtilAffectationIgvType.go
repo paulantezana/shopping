@@ -1,7 +1,7 @@
 package models
 
-// UtilCatAffectationIgvType --
-type UtilCatAffectationIgvType struct {
+// UtilAffectationIgvType --
+type UtilAffectationIgvType struct {
 	ID                uint   `json:"id" gorm:"primary_key"`
 	Code              string `json:"code" gorm:"type:varchar(12)"`
 	Description       string `json:"description" gorm:"type:varchar(128)"`

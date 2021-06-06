@@ -18,6 +18,8 @@ func PublicApi(e *echo.Echo) {
 	pb.POST("/user/forgot/search", controller.ForgotSearch)
 	pb.POST("/user/forgot/validate", controller.ForgotValidate)
 	pb.POST("/user/forgot/change", controller.ForgotChange)
+
+	pb.POST("/site/card", controller.WebSiteCard)
 }
 
 // ProtectedApi function protected urls
@@ -83,22 +85,6 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/company/salePoint/update", controller.UpdateCompanySalePoint)
 	ar.POST("/company/salePoint/updateState", controller.UpdateStateCompanySalePoint)
 
-	// brand
-	ar.POST("/brand/by/id", controller.GetBrandByID)
-	ar.POST("/brand/all", controller.GetAllBrand)
-	ar.POST("/brand/paginate", controller.PaginateBrand)
-	ar.POST("/brand/create", controller.CreateBrand)
-	ar.POST("/brand/update", controller.UpdateBrand)
-	ar.POST("/brand/updateState", controller.UpdateStateBrand)
-
-	// patter
-	ar.POST("/pattern/by/id", controller.GetPatternByID)
-	ar.POST("/pattern/all", controller.GetAllPattern)
-	ar.POST("/pattern/paginate", controller.PaginatePattern)
-	ar.POST("/pattern/create", controller.CreatePattern)
-	ar.POST("/pattern/update", controller.UpdatePattern)
-	ar.POST("/pattern/updateState", controller.UpdateStatePattern)
-
 	// patter
 	ar.POST("/category/by/id", controller.GetCategoryByID)
 	ar.POST("/category/all", controller.GetAllCategory)
@@ -109,9 +95,8 @@ func ProtectedApi(e *echo.Echo) {
 
 	// Product
 	ar.POST("/product/by/id", controller.GetProductByID)
-	ar.POST("/product/by/code", controller.GetProductByCode)
+	ar.POST("/product/search", controller.GetProductSearch)
 	ar.POST("/product/paginate", controller.PaginateProduct)
-	ar.POST("/product/paginate/search", controller.PaginateProductSearch)
 	ar.POST("/product/create", controller.CreateProduct)
 	ar.POST("/product/update", controller.UpdateProduct)
 	ar.POST("/product/updateState", controller.UpdateStateProduct)
@@ -126,14 +111,28 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/provider/updateState", controller.UpdateStateProvider)
 
 	// Purchase
-    ar.POST("/purchase/item/by/purchase/id", controller.GetPurchaseItemByPurchaseID)
-    ar.POST("/purchase/newPurchase", controller.NewPurchase)
-    ar.POST("/purchase/cancel", controller.CancelPurchase)
-    ar.POST("/purchase/paginate", controller.PaginatePurchase)
+	ar.POST("/purchase/item/by/purchase/id", controller.GetPurchaseItemByPurchaseID)
+	ar.POST("/purchase/newPurchase", controller.NewPurchase)
+	ar.POST("/purchase/cancel", controller.CancelPurchase)
+	ar.POST("/purchase/paginate", controller.PaginatePurchase)
+	ar.POST("/product/purchase/by/code", controller.GetProductPurchaseByCode)
+	ar.POST("/product/purchase/paginate/search", controller.PaginateProductSearch)
+
+    // Customer
+    ar.POST("/customer/by/id", controller.GetCustomerByID)
+    ar.POST("/customer/all", controller.GetAllCustomer)
+    ar.POST("/customer/search", controller.GetSearchCustomer)
+    ar.POST("/customer/paginate", controller.PaginateCustomer)
+    ar.POST("/customer/create", controller.CreateCustomer)
+    ar.POST("/customer/update", controller.UpdateCustomer)
+    ar.POST("/customer/updateState", controller.UpdateStateCustomer)
+
+	// Kardex
+	ar.POST("/kardex/paginate", controller.PaginateKardex)
 
 	// Utils all
 	ar.GET("/util/additionalLegendType/all", controller.GetAllUtilAdditionalLegendType)
-	ar.GET("/util/catAffectationIgvType/all", controller.GetAllUtilCatAffectationIgvType)
+	ar.GET("/util/affectationIgvType/all", controller.GetAllUtilAffectationIgvType)
 	ar.GET("/util/creditDebitType/all", controller.GetAllUtilCreditDebitType)
 	ar.GET("/util/currencyType/all", controller.GetAllUtilCurrencyType)
 	ar.GET("/util/documentType/all", controller.GetAllUtilDocumentType)
