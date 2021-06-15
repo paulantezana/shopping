@@ -2,12 +2,13 @@ package controller
 
 import (
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
-	"github.com/paulantezana/shopping/provider"
-	"github.com/paulantezana/shopping/utilities"
 	"net/http"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
+	"github.com/paulantezana/shopping/provider"
+	"github.com/paulantezana/shopping/utilities"
 )
 
 type kardexPage struct {
@@ -48,7 +49,7 @@ func PaginateKardex(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "inventory_kardex"); err != nil {
@@ -59,7 +60,7 @@ func PaginateKardex(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	products := make([]kardexPage, 0)
 
 	// Find products

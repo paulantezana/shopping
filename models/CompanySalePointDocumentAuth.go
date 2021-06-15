@@ -3,7 +3,7 @@ package models
 import "time"
 
 type CompanySalePointDocumentAuth struct {
-	ID uint `json:"id" gorm:"primary_key"`
+	ID uint `json:"id" gorm:"primaryKey"`
 
 	CompanySalePoint   uint `json:"company_sale_point"`
 	UtilDocumentTypeId uint `json:"util_document_type_id"`

@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
@@ -39,7 +39,7 @@ func GetCompanyByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
@@ -73,7 +73,7 @@ func GetFirstCompany(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
@@ -122,7 +122,7 @@ func UpdateCompany(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
@@ -131,7 +131,7 @@ func UpdateCompany(c echo.Context) error {
 
 	// Validation company exist
 	aux := models.Company{ID: company.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", company.ID),
 		})
@@ -139,7 +139,7 @@ func UpdateCompany(c echo.Context) error {
 
 	// Update company in database
 	company.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&company).Update(company).Error; err != nil {
+	if err := DB.Model(&company).Updates(company).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !company.State {
@@ -169,7 +169,7 @@ func UploadLogoCompany(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
@@ -177,7 +177,7 @@ func UploadLogoCompany(c echo.Context) error {
 	}
 
 	// Validation Company exist
-	if DB.Where("id = ?", companyId).First(&company).RecordNotFound() {
+	if DB.Where("id = ?", companyId).First(&company).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companyId),
 		})
@@ -220,7 +220,7 @@ func UploadLogoCompany(c echo.Context) error {
 
 	// Update Company in database
 	company.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&company).Update(company).Error; err != nil {
+	if err := DB.Model(&company).Updates(company).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -232,7 +232,7 @@ func UploadLogoCompany(c echo.Context) error {
 	})
 }
 
-// UploadLogoCompany function update current Company
+// UploadLogoLargeCompany function update current Company
 func UploadLogoLargeCompany(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
@@ -245,7 +245,7 @@ func UploadLogoLargeCompany(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_company"); err != nil {
@@ -253,7 +253,7 @@ func UploadLogoLargeCompany(c echo.Context) error {
 	}
 
 	// Validation Company exist
-	if DB.Where("id = ?", companyId).First(&company).RecordNotFound() {
+	if DB.Where("id = ?", companyId).First(&company).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companyId),
 		})
@@ -296,7 +296,7 @@ func UploadLogoLargeCompany(c echo.Context) error {
 
 	// Update Company in database
 	company.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&company).Update(company).Error; err != nil {
+	if err := DB.Model(&company).Updates(company).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 

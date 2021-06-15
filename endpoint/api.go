@@ -1,8 +1,8 @@
 package endpoint
 
 import (
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/paulantezana/shopping/controller"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
@@ -62,6 +62,8 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/company/update", controller.UpdateCompany)
 	ar.POST("/company/uploadLogo", controller.UploadLogoCompany)
 	ar.POST("/company/uploadLogoLarge", controller.UploadLogoLargeCompany)
+	ar.GET("/operative/get", controller.GetOperative)
+	ar.POST("/operative/save", controller.SaveOperative)
 
 	// Company Local
 	ar.POST("/company/local/by/id", controller.GetCompanyLocalByID)
@@ -100,6 +102,8 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/product/create", controller.CreateProduct)
 	ar.POST("/product/update", controller.UpdateProduct)
 	ar.POST("/product/updateState", controller.UpdateStateProduct)
+	ar.POST("/product/seeker/by/code", controller.GetProductSeekerByCode)
+	ar.POST("/product/seeker/paginate/search", controller.PaginateProductSeekerSearch)
 
 	// provider
 	ar.POST("/provider/by/id", controller.GetProviderByID)
@@ -115,17 +119,21 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/purchase/newPurchase", controller.NewPurchase)
 	ar.POST("/purchase/cancel", controller.CancelPurchase)
 	ar.POST("/purchase/paginate", controller.PaginatePurchase)
-	ar.POST("/product/purchase/by/code", controller.GetProductPurchaseByCode)
-	ar.POST("/product/purchase/paginate/search", controller.PaginateProductSearch)
 
-    // Customer
-    ar.POST("/customer/by/id", controller.GetCustomerByID)
-    ar.POST("/customer/all", controller.GetAllCustomer)
-    ar.POST("/customer/search", controller.GetSearchCustomer)
-    ar.POST("/customer/paginate", controller.PaginateCustomer)
-    ar.POST("/customer/create", controller.CreateCustomer)
-    ar.POST("/customer/update", controller.UpdateCustomer)
-    ar.POST("/customer/updateState", controller.UpdateStateCustomer)
+	// Customer
+	ar.POST("/customer/by/id", controller.GetCustomerByID)
+	ar.POST("/customer/all", controller.GetAllCustomer)
+	ar.POST("/customer/search", controller.GetSearchCustomer)
+	ar.POST("/customer/paginate", controller.PaginateCustomer)
+	ar.POST("/customer/create", controller.CreateCustomer)
+	ar.POST("/customer/update", controller.UpdateCustomer)
+	ar.POST("/customer/updateState", controller.UpdateStateCustomer)
+
+	// Sale
+	ar.POST("/sale/item/by/sale/id", controller.GetSaleItemBySaleID)
+	ar.POST("/sale/newSale", controller.NewSale)
+	ar.POST("/sale/cancel", controller.CancelSale)
+	ar.POST("/sale/paginate", controller.PaginateSale)
 
 	// Kardex
 	ar.POST("/kardex/paginate", controller.PaginateKardex)
@@ -136,6 +144,7 @@ func ProtectedApi(e *echo.Echo) {
 	ar.GET("/util/creditDebitType/all", controller.GetAllUtilCreditDebitType)
 	ar.GET("/util/currencyType/all", controller.GetAllUtilCurrencyType)
 	ar.GET("/util/documentType/all", controller.GetAllUtilDocumentType)
+	ar.GET("/util/documentType/all/sale", controller.GetAllUtilDocumentTypeSale)
 	ar.GET("/util/geographicalLocation/all", controller.GetAllUtilGeographicalLocation)
 	ar.GET("/util/identityDocumentType/all", controller.GetAllUtilIdentityDocumentType)
 	ar.GET("/util/operationType/all", controller.GetAllUtilOperationType)

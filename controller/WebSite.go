@@ -2,11 +2,12 @@ package controller
 
 import (
 	"fmt"
-	"github.com/labstack/echo"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
-	"net/http"
 )
 
 // ForgotSearch function forgot user search
@@ -21,13 +22,13 @@ func WebSiteCard(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Pagination calculate
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	products := make([]models.Product, 0)
 
 	// Find products

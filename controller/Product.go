@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
@@ -27,7 +27,7 @@ func PaginateProduct(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
@@ -38,7 +38,7 @@ func PaginateProduct(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	products := make([]models.Product, 0)
 
 	// Find products
@@ -60,8 +60,52 @@ func PaginateProduct(c echo.Context) error {
 	})
 }
 
-// PaginateProduct function get all products
-func PaginateProductSearch(c echo.Context) error {
+type productSeeker struct {
+	ID uint `json:"id"`
+
+	Url             string  `json:"url"`
+	Title           string  `json:"title"`
+	Description     string  `json:"description"`
+	LongDescription string  `json:"long_description"`
+	Barcode         string  `json:"barcode"`
+	IsService       bool    `json:"is_service"`
+	Location        string  `json:"location"`
+	StockMin        float32 `json:"stock_min"`
+	StockMax        float32 `json:"stock_max"`
+
+	InternalUse   bool    `json:"internal_use"`
+	Favourite     bool    `json:"favourite"`
+	PurchasePrice float64 `json:"purchase_price"`
+
+	Lot    bool    `json:"lot"`    // Lote
+	Bulk   bool    `json:"bulk"`   // Granel
+	Recipe bool    `json:"recipe"` // Receta medica
+	Weight float32 `json:"weight"` // Peso
+
+	SalePrice1 float64 `json:"sale_price_1"`
+	SalePrice2 float64 `json:"sale_price_2"`
+	SalePrice3 float64 `json:"sale_price_3"`
+	SalePrice4 float64 `json:"sale_price_4"`
+
+	WholeSale1 float64 `json:"whole_sale_1"`
+	WholeSale2 float64 `json:"whole_sale_2"`
+	WholeSale3 float64 `json:"whole_sale_3"`
+	WholeSale4 float64 `json:"whole_sale_4"`
+
+	PurchaseUtilUnitMeasureTypeId uint    `json:"purchase_util_unit_measure_type_id"`
+	SaleUtilUnitMeasureTypeId     uint    `json:"sale_util_unit_measure_type_id"`
+	Factor                        float32 `json:"factor"`
+
+	State bool `json:"state" gorm:"default: true"`
+
+	Stock                          float32 `json:"stock"`
+	PurchaseUnitMeasureDescription string  `json:"purchase_unit_measure_description"`
+	SaleUnitMeasureDescription     string  `json:"sale_unit_measure_description"`
+	SearchText                     string  `json:"search_text"`
+}
+
+// PaginateProductSeekerSearch function get all products
+func PaginateProductSeekerSearch(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
 	claims := tUser.Claims.(*utilities.Claim)
@@ -77,7 +121,7 @@ func PaginateProductSearch(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
@@ -88,15 +132,16 @@ func PaginateProductSearch(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
-	products := make([]models.Product, 0)
+	var total int64
+	productSeekers := make([]productSeeker, 0)
 
 	// Find products
-	if err := DB.Table("products").Select("products.*, kardexes.stock").
+	if err := DB.Table("products").Select("products.*, kardexes.stock, pur_unit.code as purchase_unit_measure_description, inv_unit.code  as sale_unit_measure_description").
+		Joins("INNER JOIN util_unit_measure_types as pur_unit ON products.purchase_util_unit_measure_type_id = pur_unit.id").
+		Joins("INNER JOIN util_unit_measure_types as inv_unit ON products.sale_util_unit_measure_type_id = inv_unit.id").
 		Joins("LEFT JOIN kardexes ON products.id = kardexes.product_id AND kardexes.company_ware_house_id = ? AND kardexes.is_last = true", request.WareHouseId).
-		Joins("LEFT JOIN util_unit_measure_types ON products.purchase_util_unit_measure_type_id = util_unit_measure_types.id").
 		Where("products.company_id = ? AND (lower(products.title) LIKE lower(?) OR lower(products.barcode) LIKE lower(?)) AND products.state = true", currentUser.CompanyId, "%"+request.Search+"%", "%"+request.Search+"%").
-		Order("products.id desc").Offset(offset).Limit(request.PageSize).Scan(&products).
+		Order("products.id desc").Offset(offset).Limit(request.PageSize).Scan(&productSeekers).
 		Offset(-1).Limit(-1).Count(&total).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
@@ -104,7 +149,7 @@ func PaginateProductSearch(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.ResponsePaginate{
 		Success:  true,
-		Data:     products,
+		Data:     productSeekers,
 		Total:    total,
 		Current:  request.CurrentPage,
 		PageSize: request.PageSize,
@@ -128,7 +173,7 @@ func GetProductByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
@@ -164,7 +209,7 @@ func GetProductSearch(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
@@ -205,7 +250,7 @@ func CreateProduct(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
@@ -244,7 +289,7 @@ func UpdateProduct(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
@@ -253,7 +298,7 @@ func UpdateProduct(c echo.Context) error {
 
 	// Validation product exist
 	aux := models.Product{ID: product.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", product.ID),
 		})
@@ -262,7 +307,7 @@ func UpdateProduct(c echo.Context) error {
 	// Update product in database
 	product.UpdatedUserId = currentUser.ID
 	product.State = aux.State
-	if err := DB.Model(&product).Update(product).Error; err != nil {
+	if err := DB.Model(&product).Updates(product).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !product.State {
@@ -296,7 +341,7 @@ func UpdateStateProduct(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
@@ -319,5 +364,42 @@ func UpdateStateProduct(c echo.Context) error {
 		Success: true,
 		Message: "El producto se actualizó correctamente",
 		Data:    product.ID,
+	})
+}
+
+// GetProductPurchaseByCode function get product by id
+func GetProductSeekerByCode(c echo.Context) error {
+	// Get user token authenticate
+	tUser := c.Get("user").(*jwt.Token)
+	claims := tUser.Claims.(*utilities.Claim)
+	currentUser := claims.User
+
+	// Get data request
+	product := models.Product{}
+	if err := c.Bind(&product); err != nil {
+		return c.JSON(http.StatusBadRequest, utilities.Response{
+			Message: "La estructura no es válida",
+		})
+	}
+
+	// Get connection
+	DB := provider.GetConnection()
+	// defer db.Close()
+
+	// Validate Auth
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
+		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+	}
+
+	// Execute instructions
+	DB.Table("products").Select("products.*, util_unit_measure_types.description as purchase_unit_measure_description").
+		Joins("LEFT JOIN util_unit_measure_types ON products.purchase_util_unit_measure_type_id = util_unit_measure_types.id").
+		Where("products.company_id = ? AND lower(products.barcode) = lower(?) AND products.state = true", currentUser.CompanyId, product.Barcode).
+		Limit(1).Scan(&product)
+
+	// Return response
+	return c.JSON(http.StatusCreated, utilities.Response{
+		Success: true,
+		Data:    product,
 	})
 }

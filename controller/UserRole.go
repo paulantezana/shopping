@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
@@ -28,7 +28,7 @@ func PaginateUserRole(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user_rol"); err != nil {
@@ -39,7 +39,7 @@ func PaginateUserRole(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	userRoles := make([]models.UserRole, 0)
 
 	// Find userRoles
@@ -68,7 +68,7 @@ func GetAllUserRole(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user_rol"); err != nil {
@@ -105,7 +105,7 @@ func GetUserRoleByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user_rol"); err != nil {
@@ -141,7 +141,7 @@ func CreateUserRole(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user_rol"); err != nil {
@@ -180,7 +180,7 @@ func UpdateUserRole(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user_rol"); err != nil {
@@ -189,7 +189,7 @@ func UpdateUserRole(c echo.Context) error {
 
 	// Validation userRole exist
 	aux := models.UserRole{ID: userRole.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", userRole.ID),
 		})
@@ -197,7 +197,7 @@ func UpdateUserRole(c echo.Context) error {
 
 	// Update userRole in database
 	userRole.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&userRole).Update(userRole).Error; err != nil {
+	if err := DB.Model(&userRole).Updates(userRole).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !userRole.State {
@@ -231,7 +231,7 @@ func UpdateStateUserRole(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user_rol"); err != nil {
@@ -286,7 +286,7 @@ func GetAppAuthorizationByUserRole(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user_rol"); err != nil {
@@ -327,7 +327,7 @@ func UpdateUserRoleAppAuthorization(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user_rol"); err != nil {
@@ -336,7 +336,7 @@ func UpdateUserRoleAppAuthorization(c echo.Context) error {
 
 	// Update userRole in database
 	userRole.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&userRole).Update(userRole).Error; err != nil {
+	if err := DB.Model(&userRole).Updates(userRole).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 

@@ -4,7 +4,7 @@ import "time"
 
 // UserRoleAuthorization
 type UserRoleAuthorization struct {
-	ID                 uint `json:"id" gorm:"primary_key"`
+	ID                 uint `json:"id" gorm:"primaryKey"`
 	AppAuthorizationId uint `json:"app_authorization_id"`
 	UserRoleId         uint `json:"user_role_id"`
 

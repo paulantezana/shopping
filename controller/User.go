@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
@@ -32,15 +32,17 @@ func Login(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Hash password
 	cc := sha256.Sum256([]byte(user.Password))
 	pwd := fmt.Sprintf("%x", cc)
 
 	// Validate user and email
-	if !DB.Where("user_name = ? and password = ?", user.UserName, pwd).First(&user).RecordNotFound() {
-		if !DB.Where("email = ? and password = ?", user.UserName, pwd).First(&user).RecordNotFound() {
+	DB.Where("user_name = ? and password = ?", user.UserName, pwd).First(&user)
+	if user.ID == 0 {
+		DB.Where("email = ? and password = ?", user.UserName, pwd).First(&user)
+		if user.ID == 0 {
 			return c.JSON(http.StatusOK, utilities.Response{
 				Message: "El nombre de usuario o contraseña es incorecta",
 			})
@@ -72,7 +74,7 @@ func Login(c echo.Context) error {
 func Logout(c echo.Context) error {
 	// get connection
 	//DB := provider.GetConnection()
-	//defer DB.Close()
+	//// defer db.Close()
 
 	// Login success
 	return c.JSON(http.StatusOK, utilities.Response{
@@ -80,7 +82,7 @@ func Logout(c echo.Context) error {
 	})
 }
 
-// CreateUser function create new user
+// RegisterUser function create new user
 func RegisterUser(c echo.Context) error {
 	// Get data request
 	user := models.User{}
@@ -92,7 +94,7 @@ func RegisterUser(c echo.Context) error {
 
 	// get connection
 	db := provider.GetConnection()
-	defer db.Close()
+	// defer db.Close()
 
 	// Hash password
 	cc := sha256.Sum256([]byte(user.Password))
@@ -132,7 +134,7 @@ func ForgotSearch(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validations
 	if err := DB.Where("email = ?", user.Email).First(&user).Error; err != nil {
@@ -212,7 +214,7 @@ func ForgotValidate(c echo.Context) error {
 
 	// get connection
 	db := provider.GetConnection()
-	defer db.Close()
+	// defer db.Close()
 
 	// Validations
 	if err := db.Where("user_id = ? AND secret_key = ? AND used = ?", userForgot.UserId, userForgot.SecretKey, false).Last(&userForgot).Error; err != nil {
@@ -239,7 +241,7 @@ func ForgotChange(c echo.Context) error {
 
 	// get connection
 	db := provider.GetConnection()
-	defer db.Close()
+	// defer db.Close()
 
 	// Validate
 	currentUser := models.User{}
@@ -255,7 +257,7 @@ func ForgotChange(c echo.Context) error {
 	user.Password = pwd
 
 	// Update
-	if err := db.Model(&user).Update(user).Error; err != nil {
+	if err := db.Model(&user).Updates(user).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -282,7 +284,7 @@ func GetUserByToken(c echo.Context) error {
 	currentUser := claims.User
 
 	db := provider.GetConnection()
-	defer db.Close()
+	// defer db.Close()
 
 	user := models.User{}
 	if err := db.First(&user, currentUser.ID).Error; err != nil {
@@ -314,14 +316,16 @@ type configLocal struct {
 	ID               uint              `json:"id"`
 	SocialReason     string            `json:"social_reason"`
 	CommercialReason string            `json:"commercial_reason"`
-	SalePoints       []configSalePoint `json:"sale_points"`
-	WareHouses       []configWareHouse `json:"ware_houses"`
+	SalePoints       []configSalePoint `json:"sale_points" gorm:"-"`
+	WareHouses       []configWareHouse `json:"ware_houses" gorm:"-"`
 }
 
 // configResponse struct
 type configResponse struct {
-	AdminMenu []models.AppAuthorization `json:"admin_menu"`
-	Locals    []configLocal             `json:"locals"`
+	AdminMenu    []models.AppAuthorization `json:"admin_menu" gorm:"-"`
+	Locals       []configLocal             `json:"locals" gorm:"-"`
+	SaleConf     models.SaleConf           `json:"sale_conf"`
+	PurchaseConf models.PurchaseConf       `json:"purchase_conf"`
 }
 
 // GetMenuAdminByUserId get admin menu
@@ -331,7 +335,7 @@ func GetMenuAdminByUserId(c echo.Context) error {
 	currentUser := claims.User
 
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	appAuthorizations := make([]models.AppAuthorization, 0)
 	if err := DB.Table("user_role_authorizations").Select("app_authorizations.*").
@@ -371,11 +375,25 @@ func GetMenuAdminByUserId(c echo.Context) error {
 		configLocals[i].WareHouses = wareHouseAuths
 	}
 
+	// Query
+	saleConf := models.SaleConf{}
+	if err := DB.First(&saleConf, currentUser.CompanyId).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
+
+	// Query
+	purchaseConf := models.PurchaseConf{}
+	if err := DB.First(&purchaseConf, currentUser.CompanyId).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
+
 	return c.JSON(http.StatusCreated, utilities.Response{
 		Success: true,
 		Data: configResponse{
-			AdminMenu: appAuthorizations,
-			Locals:    configLocals,
+			AdminMenu:    appAuthorizations,
+			Locals:       configLocals,
+			SaleConf:     saleConf,
+			PurchaseConf: purchaseConf,
 		},
 	})
 }
@@ -397,7 +415,7 @@ func PaginateUser(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user"); err != nil {
@@ -408,7 +426,7 @@ func PaginateUser(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	users := make([]models.User, 0)
 
 	// Find users
@@ -445,7 +463,7 @@ func GetUserByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user"); err != nil {
@@ -481,7 +499,7 @@ func CreateUser(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user"); err != nil {
@@ -525,7 +543,7 @@ func UpdateUser(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user"); err != nil {
@@ -534,7 +552,7 @@ func UpdateUser(c echo.Context) error {
 
 	// Validation user exist
 	aux := models.User{ID: user.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", user.ID),
 		})
@@ -549,7 +567,7 @@ func UpdateUser(c echo.Context) error {
 
 	// Update user in database
 	user.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&user).Update(user).Error; err != nil {
+	if err := DB.Model(&user).Updates(user).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !user.State {
@@ -583,7 +601,7 @@ func ChangePasswordUser(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user"); err != nil {
@@ -592,7 +610,7 @@ func ChangePasswordUser(c echo.Context) error {
 
 	// Validation user exist
 	aux := models.User{ID: user.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", user.ID),
 		})
@@ -633,7 +651,7 @@ func UpdateStateUser(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user"); err != nil {
@@ -677,7 +695,7 @@ func UploadAvatarUser(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Source
 	file, err := c.FormFile("avatar")
@@ -716,7 +734,7 @@ func UploadAvatarUser(c echo.Context) error {
 
 	// Update Company in database
 	currentUser.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&currentUser).Update(currentUser).Error; err != nil {
+	if err := DB.Model(&currentUser).Updates(currentUser).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -751,8 +769,8 @@ type localAuthResponse struct {
 	AuthId           uint   `json:"auth_id"`
 	AuthState        bool   `json:"auth_state"`
 
-	WareHouseAuths []wareHouseAuth `json:"ware_house_auths"`
-	SalePointAuths []salePointAuth `json:"sale_point_auths"`
+	WareHouseAuths []wareHouseAuth `json:"ware_house_auths" gorm:"-"`
+	SalePointAuths []salePointAuth `json:"sale_point_auths" gorm:"-"`
 }
 
 // LoadLocalAuthByUserId function update current user
@@ -772,7 +790,7 @@ func LoadLocalAuthByUserId(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user"); err != nil {
@@ -838,7 +856,7 @@ func SaveLocalAuthByUserId(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_user"); err != nil {

@@ -26,8 +26,9 @@ type Email struct {
 
 // Global config
 type Global struct {
-	PageLimit uint
+	PageLimit int
 	QueryApi  string
+	Develop   bool
 }
 
 // Server condif

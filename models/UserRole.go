@@ -4,7 +4,7 @@ import "time"
 
 // UserRole
 type UserRole struct {
-	ID          uint   `json:"id" gorm:"primary_key"`
+	ID          uint   `json:"id" gorm:"primaryKey"`
 	Description string `json:"description" gorm:"type:varchar(64)"`
 	CompanyId   uint   `json:"company_id"`
 

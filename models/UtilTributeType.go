@@ -2,7 +2,7 @@ package models
 
 // UtilTributeType --
 type UtilTributeType struct {
-	ID                uint   `json:"id" gorm:"primary_key"`
+	ID                uint   `json:"id" gorm:"primaryKey"`
 	Code              string `json:"code" gorm:"type:varchar(12)"`
 	Description       string `json:"description" gorm:"type:varchar(128)"`
 	InternationalCode string `json:"international_code" gorm:"type:varchar(12)"`

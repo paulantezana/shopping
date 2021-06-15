@@ -3,7 +3,7 @@ package models
 import "time"
 
 type CompanyWareHouse struct {
-	ID             uint   `json:"id" gorm:"primary_key"`
+	ID             uint   `json:"id" gorm:"primaryKey"`
 	CompanyLocalId uint   `json:"company_local_id"`
 	CompanyId      uint   `json:"company_id"`
 	Description    string `json:"description" gorm:"type:varchar(128)"`

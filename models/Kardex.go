@@ -3,11 +3,11 @@ package models
 import "time"
 
 type Kardex struct {
-	ID                  uint      `json:"id" gorm:"primary_key"`
+	ID                  uint      `json:"id" gorm:"primaryKey"`
 	DateOfIssue         time.Time `json:"date_of_issue" gorm:"not null"`
 	Quantity            float64   `json:"quantity" gorm:"not null"`
 	UnitPrice           float64   `json:"unit_price" gorm:"not null"`
-	Total               float64   `json:"total" gorm:"default: 0.00"`
+	Total               float64   `json:"total" gorm:"default: 0"`
 	Stock               float64   `json:"stock"`
 	Origin              string    `json:"origin"`
 	Destination         string    `json:"destination"`

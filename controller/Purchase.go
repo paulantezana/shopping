@@ -2,13 +2,14 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
-	"net/http"
-	"time"
 )
 
 type newPurchase struct {
@@ -51,7 +52,7 @@ func GetPurchaseItemByPurchaseID(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_new_purchase"); err != nil {
@@ -92,7 +93,7 @@ func NewPurchase(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// start transaction
 	TX := DB.Begin()
@@ -125,7 +126,7 @@ func NewPurchase(c echo.Context) error {
 	}
 
 	wareHouse := models.CompanyWareHouse{ID: purchaseObj.CompanyWareHouseId}
-	if TX.First(&wareHouse).RecordNotFound() {
+	if TX.First(&wareHouse).RowsAffected == 0 {
 		TX.Rollback()
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro del almacen con id %d", wareHouse.ID),
@@ -193,7 +194,7 @@ func CancelPurchase(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// start transaction
 	TX := DB.Begin()
@@ -211,7 +212,7 @@ func CancelPurchase(c echo.Context) error {
 
 	// Query Ware House
 	wareHouse := models.CompanyWareHouse{ID: purchase.CompanyWareHouseId}
-	if DB.First(&wareHouse).RecordNotFound() {
+	if DB.First(&wareHouse).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro del almacen con id %d", wareHouse.ID),
 		})
@@ -311,7 +312,7 @@ func PaginatePurchase(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_report"); err != nil {
@@ -322,7 +323,7 @@ func PaginatePurchase(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	purchases := make([]purchasePage, 0)
 
 	// Find purchases
@@ -344,43 +345,6 @@ func PaginatePurchase(c echo.Context) error {
 		Total:    total,
 		Current:  request.CurrentPage,
 		PageSize: request.PageSize,
-	})
-}
-
-// GetProductPurchaseByCode function get product by id
-func GetProductPurchaseByCode(c echo.Context) error {
-	// Get user token authenticate
-	tUser := c.Get("user").(*jwt.Token)
-	claims := tUser.Claims.(*utilities.Claim)
-	currentUser := claims.User
-
-	// Get data request
-	product := models.Product{}
-	if err := c.Bind(&product); err != nil {
-		return c.JSON(http.StatusBadRequest, utilities.Response{
-			Message: "La estructura no es válida",
-		})
-	}
-
-	// Get connection
-	DB := provider.GetConnection()
-	defer DB.Close()
-
-	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_product"); err != nil {
-		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
-	}
-
-	// Execute instructions
-	DB.Table("products").Select("products.*, util_unit_measure_types.description as purchase_unit_measure_description").
-		Joins("LEFT JOIN util_unit_measure_types ON products.purchase_util_unit_measure_type_id = util_unit_measure_types.id").
-		Where("products.company_id = ? AND lower(products.barcode) = lower(?) AND products.state = true", currentUser.CompanyId, product.Barcode).
-		Limit(1).Scan(&product)
-
-	// Return response
-	return c.JSON(http.StatusCreated, utilities.Response{
-		Success: true,
-		Data:    product,
 	})
 }
 

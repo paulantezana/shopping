@@ -2,12 +2,13 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
-	"net/http"
 )
 
 // PaginateCategory function get all categorys
@@ -27,7 +28,7 @@ func PaginateCategory(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
@@ -38,7 +39,7 @@ func PaginateCategory(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	categorys := make([]models.Category, 0)
 
 	// Find users
@@ -67,7 +68,7 @@ func GetAllCategory(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
@@ -106,7 +107,7 @@ func GetCategoryByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
@@ -142,7 +143,7 @@ func CreateCategory(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
@@ -181,7 +182,7 @@ func UpdateCategory(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
@@ -190,7 +191,7 @@ func UpdateCategory(c echo.Context) error {
 
 	// Validation category exist
 	aux := models.Category{ID: category.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", category.ID),
 		})
@@ -198,7 +199,7 @@ func UpdateCategory(c echo.Context) error {
 
 	// Update category in database
 	category.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&category).Update(category).Error; err != nil {
+	if err := DB.Model(&category).Updates(category).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !category.State {
@@ -232,7 +233,7 @@ func UpdateStateCategory(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {

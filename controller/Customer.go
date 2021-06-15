@@ -2,12 +2,13 @@ package controller
 
 import (
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
-	"github.com/paulantezana/shopping/models"
-    "github.com/paulantezana/shopping/provider"
-    "github.com/paulantezana/shopping/utilities"
 	"net/http"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
+	"github.com/paulantezana/shopping/models"
+	"github.com/paulantezana/shopping/provider"
+	"github.com/paulantezana/shopping/utilities"
 )
 
 // PaginateCustomer function get all customers
@@ -27,7 +28,7 @@ func PaginateCustomer(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
@@ -38,7 +39,7 @@ func PaginateCustomer(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	customers := make([]models.Customer, 0)
 
 	// Find users
@@ -67,7 +68,7 @@ func GetAllCustomer(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
@@ -106,7 +107,7 @@ func GetSearchCustomer(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
@@ -147,7 +148,7 @@ func GetCustomerByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
@@ -183,7 +184,7 @@ func CreateCustomer(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
@@ -222,7 +223,7 @@ func UpdateCustomer(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
@@ -231,7 +232,7 @@ func UpdateCustomer(c echo.Context) error {
 
 	// Validation customer exist
 	aux := models.Customer{ID: customerObj.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", customerObj.ID),
 		})
@@ -239,7 +240,7 @@ func UpdateCustomer(c echo.Context) error {
 
 	// Update customer in database
 	customerObj.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&customerObj).Update(customerObj).Error; err != nil {
+	if err := DB.Model(&customerObj).Updates(customerObj).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !customerObj.State {
@@ -251,7 +252,7 @@ func UpdateCustomer(c echo.Context) error {
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
 		Success: true,
-        Message: fmt.Sprintf("El cliente %s se actualizó correctamente", customerObj.SocialReason),
+		Message: fmt.Sprintf("El cliente %s se actualizó correctamente", customerObj.SocialReason),
 		Data:    customerObj.ID,
 	})
 }
@@ -273,7 +274,7 @@ func UpdateStateCustomer(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {

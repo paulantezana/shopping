@@ -3,7 +3,7 @@ package models
 import "time"
 
 type CompanyBankAccount struct {
-	ID           uint   `json:"id" gorm:"primary_key"`
+	ID           uint   `json:"id" gorm:"primaryKey"`
 	Account      string `json:"account"`
 	Subsidiary   string `json:"subsidiary"`
 	InterbankKey string `json:"interbank_key"`

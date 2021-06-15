@@ -7,8 +7,8 @@ import (
 
 type Request struct {
 	Search      string    `json:"search"`
-	CurrentPage uint      `json:"current_page"`
-	PageSize    uint      `json:"page_size"`
+	CurrentPage int       `json:"current_page"`
+	PageSize    int       `json:"page_size"`
 	WareHouseId uint      `json:"ware_house_id"`
 	CompanyId   uint      `json:"company_id"`
 	StartDate   time.Time `json:"start_date"`
@@ -16,7 +16,7 @@ type Request struct {
 	IDs         []uint    `json:"i_ds"`
 }
 
-func (r *Request) Validate() uint {
+func (r *Request) Validate() int {
 	con := provider.GetConfig()
 	if r.PageSize == 0 {
 		r.PageSize = con.Global.PageLimit

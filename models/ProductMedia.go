@@ -3,7 +3,7 @@ package models
 import "time"
 
 type ProductMedia struct {
-	ID uint `json:"id" gorm:"primary_key"`
+	ID uint `json:"id" gorm:"primaryKey"`
 
 	ProductId      uint `json:"product_id" gorm:"not null"`
 	ProductColorId uint `json:"product_color_id" gorm:"not null"`

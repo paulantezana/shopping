@@ -1,11 +1,11 @@
 package utilities
 
-// SuccessMessage
+// SuccessMessage model
 type SuccessMessage struct {
 	Message string `json:"message"`
 }
 
-// ErrorMessage
+// ErrorMessage model
 type ErrorMessage struct {
 	Message string `json:"message"`
 	Type    string `json:"type"`
@@ -31,7 +31,7 @@ type ResponsePaginate struct {
 	Message  string      `json:"message"`
 	Success  bool        `json:"success"`
 	Data     interface{} `json:"data"`
-	Total    uint        `json:"total"`
-	Current  uint        `json:"current"`
-	PageSize uint        `json:"page_size"`
+	Total    int64       `json:"total"`
+	Current  int         `json:"current"`
+	PageSize int         `json:"page_size"`
 }

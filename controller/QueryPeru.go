@@ -3,11 +3,12 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo"
-	"github.com/paulantezana/shopping/utilities"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	"github.com/paulantezana/shopping/utilities"
 )
 
 type queryPeru struct {

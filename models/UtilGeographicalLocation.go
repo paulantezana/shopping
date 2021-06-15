@@ -2,7 +2,7 @@ package models
 
 // UtilGeographicalLocation --
 type UtilGeographicalLocation struct {
-	ID         uint   `json:"id" gorm:"primary_key"`
+	ID         uint   `json:"id" gorm:"primaryKey"`
 	Code       string `json:"code" gorm:"type:varchar(12)"`
 	District   string `json:"district" gorm:"type:varchar(128)"`
 	Province   string `json:"province" gorm:"type:varchar(128)"`

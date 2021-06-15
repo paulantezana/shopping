@@ -4,7 +4,7 @@ import "time"
 
 // User user data
 type User struct {
-	ID       uint   `json:"id" gorm:"primary_key"`
+	ID       uint   `json:"id" gorm:"primaryKey"`
 	UserName string `json:"user_name" gorm:"type:varchar(64); not null"`
 	Password string `json:"password" gorm:"type:varchar(64); not null"`
 	Avatar   string `json:"avatar" gorm:"type:varchar(255)"`

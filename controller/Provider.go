@@ -2,12 +2,13 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
-	"net/http"
 )
 
 // PaginateProvider function get all providers
@@ -27,7 +28,7 @@ func PaginateProvider(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
@@ -38,7 +39,7 @@ func PaginateProvider(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	providers := make([]models.Provider, 0)
 
 	// Find users
@@ -67,7 +68,7 @@ func GetAllProvider(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
@@ -106,7 +107,7 @@ func GetSearchProvider(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
@@ -147,7 +148,7 @@ func GetProviderByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
@@ -183,7 +184,7 @@ func CreateProvider(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
@@ -222,7 +223,7 @@ func UpdateProvider(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
@@ -231,7 +232,7 @@ func UpdateProvider(c echo.Context) error {
 
 	// Validation provider exist
 	aux := models.Provider{ID: providerObj.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", providerObj.ID),
 		})
@@ -239,7 +240,7 @@ func UpdateProvider(c echo.Context) error {
 
 	// Update provider in database
 	providerObj.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&providerObj).Update(providerObj).Error; err != nil {
+	if err := DB.Model(&providerObj).Updates(providerObj).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !providerObj.State {
@@ -273,7 +274,7 @@ func UpdateStateProvider(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {

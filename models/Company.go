@@ -2,8 +2,9 @@ package models
 
 import "time"
 
+// Company model
 type Company struct {
-	ID               uint   `json:"id" gorm:"primary_key"`
+	ID               uint   `json:"id" gorm:"primaryKey"`
 	DocumentNumber   string `json:"document_number" gorm:"unique; not null; type:varchar(32)"`
 	SocialReason     string `json:"social_reason" gorm:"not null; type:varchar(255)"`
 	CommercialReason string `json:"commercial_reason" gorm:"type:varchar(255)"`

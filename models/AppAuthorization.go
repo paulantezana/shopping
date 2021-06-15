@@ -2,7 +2,7 @@ package models
 
 // AppAuthorization --
 type AppAuthorization struct {
-	ID          uint   `json:"id" gorm:"primary_key"`
+	ID          uint   `json:"id" gorm:"primaryKey"`
 	Key         string `json:"key" gorm:"unique; not null; type:varchar(64)"`
 	Type        uint   `json:"type" gorm:"default: 0"` // 0 = menu, 1 = action
 	Action      string `json:"action" gorm:"not null; type:varchar(128)"`

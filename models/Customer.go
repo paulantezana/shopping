@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Customer struct {
-	ID             uint   `json:"id" gorm:"primary_key"`
+	ID             uint   `json:"id" gorm:"primaryKey"`
 	DocumentNumber string `json:"document_number" gorm:"type:varchar(32)"`
 	SocialReason   string `json:"social_reason" gorm:"type:varchar(255)"`
 	Phone          string `json:"phone" gorm:"type:varchar(32)"`

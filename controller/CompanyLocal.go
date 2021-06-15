@@ -1,15 +1,13 @@
 package controller
 
 import (
-	"fmt"
-	"net/http"
-	"regexp"
-
-	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
-	"github.com/paulantezana/shopping/models"
-	"github.com/paulantezana/shopping/provider"
-	"github.com/paulantezana/shopping/utilities"
+    "fmt"
+    "github.com/dgrijalva/jwt-go"
+    "github.com/labstack/echo/v4"
+    "github.com/paulantezana/shopping/models"
+    "github.com/paulantezana/shopping/provider"
+    "github.com/paulantezana/shopping/utilities"
+    "net/http"
 )
 
 // PaginateCompanyLocal function get all companylocals
@@ -29,7 +27,7 @@ func PaginateCompanyLocal(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
@@ -40,7 +38,7 @@ func PaginateCompanyLocal(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	companyLocals := make([]models.CompanyLocal, 0)
 
 	// Find companyLocals
@@ -69,7 +67,7 @@ func GetAllCompanyLocal(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
@@ -112,7 +110,7 @@ func GetCompanyLocalByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
@@ -127,9 +125,6 @@ func GetCompanyLocalByID(c echo.Context) error {
 	companyLocalRequest.CompanyLocal = companyLocal
 	if err := DB.Raw("SELECT id, code, concat(department, '-', province, '-', district) as description  FROM util_geographical_locations WHERE id = ?", companyLocal.UtilGeographicalLocationId).
 		Scan(&companyLocalRequest.UtilGeographicalLocationShort).Error; err != nil {
-		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-	}
-	if err := DB.Where("company_local_id = ?", companyLocal.ID).Find(&companyLocalRequest.CompanyLocal.CompanySeries).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -165,7 +160,7 @@ func CreateCompanyLocal(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
@@ -212,7 +207,7 @@ func UpdateCompanyLocal(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
@@ -221,7 +216,7 @@ func UpdateCompanyLocal(c echo.Context) error {
 
 	// Validation companyLocal exist
 	aux := models.CompanyLocal{ID: companyLocal.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companyLocal.ID),
 		})
@@ -230,7 +225,7 @@ func UpdateCompanyLocal(c echo.Context) error {
 	// Update companyLocal in database
 	companyLocal.UpdatedUserId = currentUser.ID
 	companyLocal.CompanyId = currentUser.CompanyId
-	if err := DB.Model(&companyLocal).Update(companyLocal).Error; err != nil {
+	if err := DB.Model(&companyLocal).Updates(companyLocal).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -259,7 +254,7 @@ func UpdateStateCompanyLocal(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_subsidiary"); err != nil {
@@ -298,57 +293,6 @@ func validateCompanyLocal(companyLocal models.CompanyLocal) utilities.Response {
 	if companyLocal.Address == "" {
 		response.Message += "Falta ingresar la dirección \n"
 		return response
-	}
-	if len(companyLocal.CompanySeries) == 0 {
-		response.Message += "Falta ingresar el item \n"
-		return response
-	}
-	for _, companySerie := range companyLocal.CompanySeries {
-		if len(companySerie.Serie) != 4 {
-			response.Message += "La serie debe contener 4 digitos \n"
-			return response
-		}
-		if companySerie.UtilDocumentTypeId == 0 {
-			response.Message += "Especifique el tipo de documento \n"
-			return response
-		}
-		cSerie := string(companySerie.Serie[0])
-		if companySerie.UtilDocumentTypeId == 1 && companySerie.Contingency == false {
-			if !(cSerie == "F") {
-				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-				return response
-			}
-		}
-		if companySerie.UtilDocumentTypeId == 2 && companySerie.Contingency == false {
-			if !(cSerie == "B") {
-				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-				return response
-			}
-		}
-		if companySerie.UtilDocumentTypeId == 3 && companySerie.Contingency == false {
-			if !(cSerie == "F" || cSerie == "B") {
-				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-				return response
-			}
-		}
-		if companySerie.UtilDocumentTypeId == 4 && companySerie.Contingency == false {
-			if !(cSerie == "F" || cSerie == "B") {
-				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-				return response
-			}
-		}
-		if companySerie.Contingency {
-			if !regexp.MustCompile("^[0-9]{4}$").MatchString(companySerie.Serie) {
-				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-				return response
-			}
-		}
-		if companySerie.UtilDocumentTypeId == 5 {
-			if !(cSerie == "T") {
-				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-				return response
-			}
-		}
 	}
 
 	response.Success = true

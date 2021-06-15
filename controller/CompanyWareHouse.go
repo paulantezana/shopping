@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
@@ -36,7 +36,7 @@ func PaginateCompanyWareHouse(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
@@ -47,7 +47,7 @@ func PaginateCompanyWareHouse(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	companyWareHouses := make([]companyWareHousePaginateResponse, 0)
 
 	// Find companyWareHouses
@@ -86,7 +86,7 @@ func GetCompanyWareHouseByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
@@ -122,7 +122,7 @@ func CreateCompanyWareHouse(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
@@ -161,7 +161,7 @@ func UpdateCompanyWareHouse(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {
@@ -170,7 +170,7 @@ func UpdateCompanyWareHouse(c echo.Context) error {
 
 	// Validation companyWareHouse exist
 	aux := models.CompanyWareHouse{ID: companyWareHouse.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companyWareHouse.ID),
 		})
@@ -178,7 +178,7 @@ func UpdateCompanyWareHouse(c echo.Context) error {
 
 	// Update companyWareHouse in database
 	companyWareHouse.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&companyWareHouse).Update(companyWareHouse).Error; err != nil {
+	if err := DB.Model(&companyWareHouse).Updates(companyWareHouse).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !companyWareHouse.State {
@@ -212,7 +212,7 @@ func UpdateStateCompanyWareHouse(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_warehouse"); err != nil {

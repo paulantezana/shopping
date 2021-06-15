@@ -3,7 +3,7 @@ package models
 import "time"
 
 type UserLocalAuth struct {
-	ID             uint `json:"id" gorm:"primary_key"`
+	ID             uint `json:"id" gorm:"primaryKey"`
 	CompanyLocalId uint `json:"company_local_id"`
 	UserId         uint `json:"user_id"`
 

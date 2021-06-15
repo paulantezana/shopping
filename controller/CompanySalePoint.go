@@ -3,9 +3,10 @@ package controller
 import (
 	"fmt"
 	"net/http"
+    "regexp"
 
-	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+    "github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
@@ -36,7 +37,7 @@ func PaginateCompanySalePoint(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
@@ -47,7 +48,7 @@ func PaginateCompanySalePoint(c echo.Context) error {
 	offset := request.Validate()
 
 	// Check the number of matches
-	var total uint
+	var total int64
 	companySalePoints := make([]companySalePointPaginateResponse, 0)
 
 	// Find companySalePoints
@@ -86,7 +87,7 @@ func GetCompanySalePointByID(c echo.Context) error {
 
 	// Get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
@@ -97,6 +98,11 @@ func GetCompanySalePointByID(c echo.Context) error {
 	if err := DB.First(&companySalePoint, companySalePoint.ID).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
+
+    // Series
+    if err := DB.Where("company_sale_point_id = ?", companySalePoint.ID).Find(&companySalePoint.CompanySalePointSeries).Error; err != nil {
+       return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+    }
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
@@ -122,7 +128,7 @@ func CreateCompanySalePoint(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
@@ -161,7 +167,7 @@ func UpdateCompanySalePoint(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
@@ -170,7 +176,7 @@ func UpdateCompanySalePoint(c echo.Context) error {
 
 	// Validation companySalePoint exist
 	aux := models.CompanySalePoint{ID: companySalePoint.ID}
-	if DB.First(&aux).RecordNotFound() {
+	if DB.First(&aux).RowsAffected == 0 {
 		return c.JSON(http.StatusOK, utilities.Response{
 			Message: fmt.Sprintf("No se encontró el registro con id %d", companySalePoint.ID),
 		})
@@ -178,7 +184,7 @@ func UpdateCompanySalePoint(c echo.Context) error {
 
 	// Update companySalePoint in database
 	companySalePoint.UpdatedUserId = currentUser.ID
-	if err := DB.Model(&companySalePoint).Update(companySalePoint).Error; err != nil {
+	if err := DB.Model(&companySalePoint).Updates(companySalePoint).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 	if !companySalePoint.State {
@@ -212,7 +218,7 @@ func UpdateStateCompanySalePoint(c echo.Context) error {
 
 	// get connection
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	// Validate Auth
 	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_sale_point"); err != nil {
@@ -236,4 +242,67 @@ func UpdateStateCompanySalePoint(c echo.Context) error {
 		Message: "El punto de venta se actualizó correctamente",
 		Data:    companySalePoint.ID,
 	})
+}
+
+// validateCompanyLocal --
+func validateCompanySalePoint(companySalePoint models.CompanySalePoint) utilities.Response {
+    response := utilities.Response{}
+    if companySalePoint.Description == "" {
+        response.Message += "Falta ingresar la descripción \n"
+        return response
+    }
+    if len(companySalePoint.CompanySalePointSeries) == 0 {
+        response.Message += "Falta ingresar el item \n"
+        return response
+    }
+    for _, companySerie := range companySalePoint.CompanySalePointSeries {
+        if len(companySerie.Serie) != 4 {
+            response.Message += "La serie debe contener 4 digitos \n"
+            return response
+        }
+        if companySerie.UtilDocumentTypeId == 0 {
+            response.Message += "Especifique el tipo de documento \n"
+            return response
+        }
+        cSerie := string(companySerie.Serie[0])
+        if companySerie.UtilDocumentTypeId == 1 && companySerie.Contingency == false {
+            if !(cSerie == "F") {
+                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+                return response
+            }
+        }
+        if companySerie.UtilDocumentTypeId == 2 && companySerie.Contingency == false {
+            if !(cSerie == "B") {
+                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+                return response
+            }
+        }
+        if companySerie.UtilDocumentTypeId == 3 && companySerie.Contingency == false {
+            if !(cSerie == "F" || cSerie == "B") {
+                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+                return response
+            }
+        }
+        if companySerie.UtilDocumentTypeId == 4 && companySerie.Contingency == false {
+            if !(cSerie == "F" || cSerie == "B") {
+                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+                return response
+            }
+        }
+        if companySerie.Contingency {
+            if !regexp.MustCompile("^[0-9]{4}$").MatchString(companySerie.Serie) {
+                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+                return response
+            }
+        }
+        if companySerie.UtilDocumentTypeId == 5 {
+            if !(cSerie == "T") {
+                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+                return response
+            }
+        }
+    }
+
+    response.Success = true
+    return response
 }

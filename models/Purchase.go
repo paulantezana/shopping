@@ -3,17 +3,17 @@ package models
 import "time"
 
 type Purchase struct {
-	ID                uint      `json:"id" gorm:"primary_key"`
+	ID                uint      `json:"id" gorm:"primaryKey"`
 	DateOfIssue       time.Time `json:"date_of_issue" gorm:"not null"`
 	DateOfPurchase    time.Time `json:"date_of_purchase"`
 	Invoice           string    `json:"invoice"` // Folio
 	Guide             string    `json:"guide" `
 	Observation       string    `json:"observation" gorm:"default: ''"`
 	CancelObservation string    `json:"cancel_observation" gorm:"default: ''"`
-	TotalUnaffected   float64   `json:"total_unaffected" gorm:"default: 0.00"`
-	TotalTaxed        float64   `json:"total_taxed" gorm:"default: 0.00"`
-	TotalIgv          float64   `json:"total_igv" gorm:"default: 0.00"`
-	Total             float64   `json:"total" gorm:"default: 0.00"`
+	TotalUnaffected   float64   `json:"total_unaffected" gorm:"default: 0"`
+	TotalTaxed        float64   `json:"total_taxed" gorm:"default: 0"`
+	TotalIgv          float64   `json:"total_igv" gorm:"default: 0"`
+	Total             float64   `json:"total" gorm:"default: 0"`
 	TotalInLetter     string    `json:"total_in_letter"`
 
 	ProviderId         uint `json:"provider_id"`

@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Attribute struct {
-	ID        uint   `json:"id" gorm:"primary_key"`
+	ID        uint   `json:"id" gorm:"primaryKey"`
 	Name      string `json:"name" gorm:"type:varchar(12)"`
 	ShortName string `json:"short_name" gorm:"type:varchar(12)"`
 

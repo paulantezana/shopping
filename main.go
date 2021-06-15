@@ -5,14 +5,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/paulantezana/shopping/provider"
-
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/paulantezana/shopping/migration"
+	"github.com/paulantezana/shopping/provider"
 )
 
 func main() {
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

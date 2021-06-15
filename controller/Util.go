@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
 	"github.com/paulantezana/shopping/utilities"
@@ -13,7 +13,7 @@ import (
 // GetAllUtilAdditionalLegendType --
 func GetAllUtilAdditionalLegendType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilAdditionalLegendType, 0)
 
@@ -32,7 +32,7 @@ func GetAllUtilAdditionalLegendType(c echo.Context) error {
 // GetAllUtilAffectationIgvType --
 func GetAllUtilAffectationIgvType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilAffectationIgvType, 0)
 
@@ -51,7 +51,7 @@ func GetAllUtilAffectationIgvType(c echo.Context) error {
 // GetAllUtilCreditDebitType --
 func GetAllUtilCreditDebitType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilCreditDebitType, 0)
 
@@ -70,7 +70,7 @@ func GetAllUtilCreditDebitType(c echo.Context) error {
 // GetAllUtilCurrencyType --
 func GetAllUtilCurrencyType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilCurrencyType, 0)
 
@@ -89,7 +89,7 @@ func GetAllUtilCurrencyType(c echo.Context) error {
 // GetAllUtilDocumentType --
 func GetAllUtilDocumentType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilDocumentType, 0)
 
@@ -105,10 +105,29 @@ func GetAllUtilDocumentType(c echo.Context) error {
 	})
 }
 
+// GetAllUtilDocumentTypeSale --
+func GetAllUtilDocumentTypeSale(c echo.Context) error {
+	DB := provider.GetConnection()
+	// defer db.Close()
+
+	util := make([]models.UtilDocumentType, 0)
+
+	// Find users
+	if err := DB.Debug().Find(&util, []uint{1, 2, 6}).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
+
+	// Return response
+	return c.JSON(http.StatusCreated, utilities.Response{
+		Success: true,
+		Data:    util,
+	})
+}
+
 // GetAllUtilGeographicalLocation --
 func GetAllUtilGeographicalLocation(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilGeographicalLocation, 0)
 
@@ -134,7 +153,7 @@ func GetSearchUtilGeographicalLocation(c echo.Context) error {
 	}
 
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	utilGeographicalLocationShorts := make([]models.UtilGeographicalLocationShort, 0)
 
@@ -154,7 +173,7 @@ func GetSearchUtilGeographicalLocation(c echo.Context) error {
 // GetAllUtilIdentityDocumentType --
 func GetAllUtilIdentityDocumentType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilIdentityDocumentType, 0)
 
@@ -173,7 +192,7 @@ func GetAllUtilIdentityDocumentType(c echo.Context) error {
 // GetAllUtilOperationType --
 func GetAllUtilOperationType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilOperationType, 0)
 
@@ -192,7 +211,7 @@ func GetAllUtilOperationType(c echo.Context) error {
 // GetAllUtilPerceptionType --
 func GetAllUtilPerceptionType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilPerceptionType, 0)
 
@@ -211,7 +230,7 @@ func GetAllUtilPerceptionType(c echo.Context) error {
 // GetAllUtilProductType --
 func GetAllUtilProductType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilProductType, 0)
 
@@ -230,7 +249,7 @@ func GetAllUtilProductType(c echo.Context) error {
 // GetAllUtilSubjectDetractionType --
 func GetAllUtilSubjectDetractionType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilSubjectDetractionType, 0)
 
@@ -249,7 +268,7 @@ func GetAllUtilSubjectDetractionType(c echo.Context) error {
 // GetAllUtilSystemIscType --
 func GetAllUtilSystemIscType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilSystemIscType, 0)
 
@@ -268,7 +287,7 @@ func GetAllUtilSystemIscType(c echo.Context) error {
 // GetAllUtilTransferReasonType --
 func GetAllUtilTransferReasonType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilTransferReasonType, 0)
 
@@ -287,7 +306,7 @@ func GetAllUtilTransferReasonType(c echo.Context) error {
 // GetAllUtilTransportModeType --
 func GetAllUtilTransportModeType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilTransportModeType, 0)
 
@@ -306,7 +325,7 @@ func GetAllUtilTransportModeType(c echo.Context) error {
 // GetAllUtilTributeType --
 func GetAllUtilTributeType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilTributeType, 0)
 
@@ -325,7 +344,7 @@ func GetAllUtilTributeType(c echo.Context) error {
 // GetAllUtilUnitMeasureType --
 func GetAllUtilUnitMeasureType(c echo.Context) error {
 	DB := provider.GetConnection()
-	defer DB.Close()
+	// defer db.Close()
 
 	util := make([]models.UtilUnitMeasureType, 0)
 

@@ -1,7 +1,7 @@
 package models
 
-type InvoiceSunat struct {
-	ID uint `json:"id" gorm:"primary_key"`
+type SaleSunat struct {
+	ID uint `json:"id" gorm:"primaryKey"`
 
 	PdfUrl          string `json:"pdf_url" gorm:"default: ''"`
 	XmlUrl          string `json:"xml_url" gorm:"default: ''"`
@@ -11,5 +11,5 @@ type InvoiceSunat struct {
 	ResponseMessage string `json:"response_message" gorm:"default: ''"`
 	OtherMessage    string `json:"other_message" gorm:"default: ''"`
 
-	InvoiceId uint `json:"invoice_id" gorm:"unique; not null"`
+	SaleId uint `json:"sale_id" gorm:"unique; not null"`
 }

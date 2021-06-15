@@ -4,7 +4,7 @@ import "time"
 
 // UserForgot
 type UserForgot struct {
-	ID        uint   `json:"id" gorm:"primary_key"`
+	ID        uint   `json:"id" gorm:"primaryKey"`
 	Used      bool   `json:"used" gorm:"default: false"`
 	SecretKey string `json:"secret_key" gorm:"type:varchar(128); not null"`
 

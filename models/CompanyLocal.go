@@ -5,7 +5,7 @@ import (
 )
 
 type CompanyLocal struct {
-	ID               uint   `json:"id" gorm:"primary_key"`
+	ID               uint   `json:"id" gorm:"primaryKey"`
 	SocialReason     string `json:"social_reason" gorm:"type:varchar(255)"`
 	CommercialReason string `json:"commercial_reason" gorm:"type:varchar(255)"`
 	Phone            string `json:"phone" gorm:"type:varchar(128)"`
@@ -20,6 +20,4 @@ type CompanyLocal struct {
 	CreatedUserId uint      `json:"-"`
 	UpdatedUserId uint      `json:"-"`
 	State         bool      `json:"state" gorm:"default: true"`
-
-	CompanySeries []CompanySerie `json:"company_series"`
 }
