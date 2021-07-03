@@ -37,3 +37,34 @@ verificar el servicio
 ```bash
 sudo systemctl status shopping.service
 ```
+
+PROXY
+```bash
+server {
+        listen 80;
+        server_name api.yarbys.com;
+
+        location / {
+                proxy_pass http://127.0.0.1:1323;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+        }
+}
+```
+
+Check
+```bash
+nginx -t
+```
+
+```bash
+ln -s /etc/nginx/sites-available/api.yarbys.com /etc/nginx/sites-enabled/api.yarbys.com
+```
+
+```bash
+sudo service nginx restart
+systemctl status nginx
+```
