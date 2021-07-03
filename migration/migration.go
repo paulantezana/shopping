@@ -82,7 +82,7 @@ func Migrate() {
 			db.Create(&models.AppAuthorization{Key: "setting", Title: "Configuración", Icon: "setting", Description: "Venta", Action: "List"})
 
 			db.Create(&models.AppAuthorization{Key: "sale_new_sale", Title: "Nueva venta", Icon: "scan", To: "/admin/sale/newSale", Description: "Venta", Action: "List", ParentId: 1})
-			db.Create(&models.AppAuthorization{Key: "sale_credit_sale", Title: "Ventas a crédito", Icon: "credit-card", To: "/admin/sale/creditSale", Description: "Venta", Action: "List", ParentId: 1})
+			//db.Create(&models.AppAuthorization{Key: "sale_credit_sale", Title: "Ventas a crédito", Icon: "credit-card", To: "/admin/sale/creditSale", Description: "Venta", Action: "List", ParentId: 1})
 			db.Create(&models.AppAuthorization{Key: "sale_customer", Title: "Clientes", Icon: "user", To: "/admin/sale/customer", Description: "Venta", Action: "List", ParentId: 1})
 			db.Create(&models.AppAuthorization{Key: "sale_report", Title: "Reporte", Icon: "bar-chart", To: "/admin/sale/report", Description: "Venta", Action: "List", ParentId: 1})
 
@@ -101,7 +101,7 @@ func Migrate() {
 			db.Create(&models.AppAuthorization{Key: "maintenance_import", Title: "Importar", Icon: "cloud-upload", To: "/admin/product/import", Description: "Venta", Action: "List", ParentId: 5})
 
 			db.Create(&models.AppAuthorization{Key: "setting_company", Title: "Empresa", Icon: "bank", To: "/admin/company", Description: "Venta", Action: "List", ParentId: 6})
-			db.Create(&models.AppAuthorization{Key: "setting_subsidiary", Title: "Locales y series", Icon: "home", To: "/admin/company/local", Description: "Venta", Action: "List", ParentId: 6})
+			db.Create(&models.AppAuthorization{Key: "setting_subsidiary", Title: "Sucursal", Icon: "home", To: "/admin/company/local", Description: "Venta", Action: "List", ParentId: 6})
 			db.Create(&models.AppAuthorization{Key: "setting_warehouse", Title: "Almacen", Icon: "hdd", To: "/admin/company/wareHouse", Description: "Venta", Action: "List", ParentId: 6})
 			db.Create(&models.AppAuthorization{Key: "setting_sale_point", Title: "Punto de venta", Icon: "shop", To: "/admin/company/salePoint", Description: "Venta", Action: "List", ParentId: 6})
 			db.Create(&models.AppAuthorization{Key: "setting_user_rol", Title: "Roles", Icon: "profile", To: "/admin/user/role", Description: "Venta", Action: "List", ParentId: 6})
@@ -109,10 +109,10 @@ func Migrate() {
 			db.Create(&models.AppAuthorization{Key: "setting_operative", Title: "Operatividad", Icon: "hdd", To: "/admin/company/operative", Description: "Operatividad", Action: "List", ParentId: 6})
 
 			// Document type
-			db.Create(&models.UtilDocumentType{Code: "01", Description: "FACTURA"})
-			db.Create(&models.UtilDocumentType{Code: "03", Description: "BOLETA DE VENTA"})
-			db.Create(&models.UtilDocumentType{Code: "07", Description: "NOTA DE CREDITO"})
-			db.Create(&models.UtilDocumentType{Code: "08", Description: "NOTA DE DEBITO"})
+			db.Create(&models.UtilDocumentType{Code: "01", NuCode: "1", Description: "FACTURA"})
+			db.Create(&models.UtilDocumentType{Code: "03", NuCode: "2", Description: "BOLETA DE VENTA"})
+			db.Create(&models.UtilDocumentType{Code: "07", NuCode: "3", Description: "NOTA DE CREDITO"})
+			db.Create(&models.UtilDocumentType{Code: "08", NuCode: "4", Description: "NOTA DE DEBITO"})
 			db.Create(&models.UtilDocumentType{Code: "09", Description: "GUIA DE REMISIÓN REMITENTE"})
 			db.Create(&models.UtilDocumentType{Code: "TK", Description: "TIKET", Sunat: false})
 			db.Create(&models.UtilDocumentType{Code: "NP", Description: "NOTA PEDIDO", Sunat: false})
@@ -120,10 +120,10 @@ func Migrate() {
 			db.Create(&models.UtilDocumentType{Code: "OT", Description: "OTROS", Sunat: false})
 
 			// Currency type
-			db.Create(&models.UtilCurrencyType{Code: "PEN", Description: "SOLES", Symbol: "S/"})
-			db.Create(&models.UtilCurrencyType{Code: "USD", Description: "DÓLARES", Symbol: "$"})
-			db.Create(&models.UtilCurrencyType{Code: "EUR", Description: "EURO", Symbol: "€"})
-			db.Create(&models.UtilCurrencyType{Code: "JPY", Description: "YEN", Symbol: "¥"})
+			db.Create(&models.UtilCurrencyType{Code: "PEN", NuCode: "1", Description: "SOLES", Symbol: "S/"})
+			db.Create(&models.UtilCurrencyType{Code: "USD", NuCode: "2", Description: "DÓLARES", Symbol: "$"})
+			db.Create(&models.UtilCurrencyType{Code: "EUR", NuCode: "3", Description: "EURO", Symbol: "€"})
+			//db.Create(&models.UtilCurrencyType{Code: "JPY", Description: "YEN", Symbol: "¥"})
 
 			// Unit Measure type
 			db.Create(&models.UtilUnitMeasureType{Code: "4A", Description: "BOBINAS"})
@@ -183,8 +183,8 @@ func Migrate() {
 			db.Create(&models.UtilUnitMeasureType{Code: "LTN", Description: "TONELADALARGA"})
 			db.Create(&models.UtilUnitMeasureType{Code: "TNE", Description: "TONELADAS"})
 			db.Create(&models.UtilUnitMeasureType{Code: "TU", Description: "TUBOS"})
-			db.Create(&models.UtilUnitMeasureType{Code: "NIU", Description: "UNIDAD(BIENES)"})
-			db.Create(&models.UtilUnitMeasureType{Code: "ZZ", Description: "UNIDAD(SERVICIOS)"})
+			db.Create(&models.UtilUnitMeasureType{Code: "NIU", NuCode: "NIU", Description: "UNIDAD(BIENES)"})
+			db.Create(&models.UtilUnitMeasureType{Code: "ZZ", NuCode: "ZZ", Description: "UNIDAD(SERVICIOS)"})
 			db.Create(&models.UtilUnitMeasureType{Code: "GLL", Description: "USGALON(3,7843L)"})
 			db.Create(&models.UtilUnitMeasureType{Code: "YRD", Description: "YARDA"})
 			db.Create(&models.UtilUnitMeasureType{Code: "YDK", Description: "YARDACUADRADA"})
@@ -201,34 +201,34 @@ func Migrate() {
 			db.Create(&models.UtilTributeType{Code: "9999", Description: "Otros tributos", InternationalCode: "OTH", Name: "OTROS"})
 
 			// UtilAffectation Igv Type
-			db.Create(&models.UtilAffectationIgvType{Code: "10", Description: "Gravado - Operación Onerosa", Onerous: true, UtilTributeTypeId: 1})
-			db.Create(&models.UtilAffectationIgvType{Code: "11", Description: "[Gratuita] Gravado – Retiro por premio", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "12", Description: "[Gratuita] Gravado – Retiro por donación", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "13", Description: "[Gratuita] Gravado – Retiro", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "14", Description: "[Gratuita] Gravado – Retiro por publicidad", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "15", Description: "[Gratuita] Gravado – Bonificaciones", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "16", Description: "[Gratuita] Gravado – Retiro por entrega a trabajadores", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "20", Description: "Exonerado - Operación Onerosa", Onerous: true, UtilTributeTypeId: 7})
-			db.Create(&models.UtilAffectationIgvType{Code: "30", Description: "Inafecto - Operación Onerosa", Onerous: true, UtilTributeTypeId: 8})
-			db.Create(&models.UtilAffectationIgvType{Code: "31", Description: "[Gratuita] Inafecto – Retiro por Bonificación", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "32", Description: "[Gratuita] Inafecto – Retiro", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "33", Description: "[Gratuita] Inafecto – Retiro por Muestras Médicas", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "34", Description: "[Gratuita] Inafecto - Retiro por Convenio Colectivo", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "35", Description: "[Gratuita] Inafecto – Retiro por premio", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "36", Description: "[Gratuita] Inafecto - Retiro por publicidad", Onerous: false, UtilTributeTypeId: 6})
-			db.Create(&models.UtilAffectationIgvType{Code: "40", Description: "Exportación", Onerous: true, UtilTributeTypeId: 5})
+			db.Create(&models.UtilAffectationIgvType{Code: "10", NuCode: "1", Description: "Gravado - Operación Onerosa", Onerous: true, UtilTributeTypeId: 1})
+			db.Create(&models.UtilAffectationIgvType{Code: "11", NuCode: "2", Description: "Gravado – Retiro por premio", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "12", NuCode: "3", Description: "Gravado – Retiro por donación", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "13", NuCode: "4", Description: "Gravado – Retiro", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "14", NuCode: "5", Description: "Gravado – Retiro por publicidad", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "15", NuCode: "6", Description: "Gravado – Bonificaciones", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "16", NuCode: "7", Description: "Gravado – Retiro por entrega a trabajadores", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "20", NuCode: "8", Description: "Exonerado - Operación Onerosa", Onerous: true, UtilTributeTypeId: 7})
+			db.Create(&models.UtilAffectationIgvType{Code: "30", NuCode: "9", Description: "Inafecto - Operación Onerosa", Onerous: true, UtilTributeTypeId: 8})
+			db.Create(&models.UtilAffectationIgvType{Code: "31", NuCode: "10", Description: "Inafecto – Retiro por Bonificación", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "32", NuCode: "11", Description: "Inafecto – Retiro", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "33", NuCode: "12", Description: "Inafecto – Retiro por Muestras Médicas", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "34", NuCode: "13", Description: "Inafecto - Retiro por Convenio Colectivo", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "35", NuCode: "14", Description: "Inafecto – Retiro por premio", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "36", NuCode: "15", Description: "Inafecto - Retiro por publicidad", Onerous: false, UtilTributeTypeId: 6})
+			db.Create(&models.UtilAffectationIgvType{Code: "40", NuCode: "16", Description: "Exportación", Onerous: true, UtilTributeTypeId: 5})
 
 			// Identity type
-			db.Create(&models.UtilIdentityDocumentType{Code: "0", Description: "0 NO DOMICILIADO, SIN RUC (EXPORTACIÓN)"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "1", Description: "1 DNI"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "4", Description: "4 CARNET DE EXTRANJERIA"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "6", Description: "6 RUC"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "7", Description: "7 PASAPORTE"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "A", Description: "A CED. DIPLOMATICA DE IDENTIDAD"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "B", Description: "B DOC.IDENT.PAIS.RESIDENCIA-NO.D"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "C", Description: "C Tax Identification Number - TIN – Doc Trib PP.NN"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "D", Description: "D Identification Number - IN – Doc Trib PP. JJ"})
-			db.Create(&models.UtilIdentityDocumentType{Code: "-", Description: "- VARIOS - VENTAS MENORES A S/.700.00 Y OTROS"})
+			db.Create(&models.UtilIdentityDocumentType{Code: "0", NuCode: "0", Description: "NO DOMICILIADO, SIN RUC (EXPORTACIÓN)"})
+			db.Create(&models.UtilIdentityDocumentType{Code: "1", NuCode: "1", Description: "DNI"})
+			db.Create(&models.UtilIdentityDocumentType{Code: "4", NuCode: "4", Description: "CARNET DE EXTRANJERIA"})
+			db.Create(&models.UtilIdentityDocumentType{Code: "6", NuCode: "6", Description: "RUC"})
+			db.Create(&models.UtilIdentityDocumentType{Code: "7", NuCode: "7", Description: "PASAPORTE"})
+			db.Create(&models.UtilIdentityDocumentType{Code: "A", NuCode: "A", Description: "CED. DIPLOMATICA DE IDENTIDAD"})
+			db.Create(&models.UtilIdentityDocumentType{Code: "B", NuCode: "", Description: "DOC.IDENT.PAIS.RESIDENCIA-NO.D", State: false})
+			db.Create(&models.UtilIdentityDocumentType{Code: "C", NuCode: "", Description: "Tax Identification Number - TIN – Doc Trib PP.NN", State: false})
+			db.Create(&models.UtilIdentityDocumentType{Code: "D", NuCode: "", Description: "Identification Number - IN – Doc Trib PP. JJ", State: false})
+			db.Create(&models.UtilIdentityDocumentType{Code: "-", NuCode: "-", Description: "- VARIOS - VENTAS MENORES A S/.700.00 Y OTROS"})
 
 			// Isc type
 			db.Create(&models.UtilSystemIscType{Code: "01", Description: "Sistema al valor (Apéndice IV, lit. A – T.U.O IGV e ISC)"})
@@ -408,26 +408,26 @@ func Migrate() {
 			db.Create(&models.CompanyWareHouse{CompanyLocalId: companyLocal.ID, CompanyId: company.ID, Description: "ALMACEN PRINCIPAL"})
 
 			// SALE POINT
-            companySalePoint := models.CompanySalePoint{
-                CompanyLocalId: companyLocal.ID,
-                CompanyId: company.ID,
-                Description: "Punto de venta 1",
-            }
+			companySalePoint := models.CompanySalePoint{
+				CompanyLocalId: companyLocal.ID,
+				CompanyId:      company.ID,
+				Description:    "Punto de venta 1",
+			}
 			db.Create(&companySalePoint)
 
-            // SERIE
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 1, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 3, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 4, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 2, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 3, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 4, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 1, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 2, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
+			// SERIE
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 1, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 3, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 4, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 2, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 3, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 4, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 1, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 2, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
 
 			// Create Roles
 			adminRole := models.UserRole{Description: "Administrador", CompanyId: company.ID}
@@ -494,28 +494,28 @@ func Migrate() {
 			db.Create(&models.CompanyWareHouse{CompanyLocalId: companyLocal.ID, CompanyId: company.ID, Description: "ALMACEN PRINCIPAL"})
 
 			// SALE POINT
-            companySalePoint = models.CompanySalePoint{
-                CompanyLocalId: companyLocal.ID,
-                CompanyId: company.ID,
-                Description: "Punto de venta 1",
-            }
-            db.Create(&companySalePoint)
+			companySalePoint = models.CompanySalePoint{
+				CompanyLocalId: companyLocal.ID,
+				CompanyId:      company.ID,
+				Description:    "Punto de venta 1",
+			}
+			db.Create(&companySalePoint)
 
-            // SERIE
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 1, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 3, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 4, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 2, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 3, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 4, Contingency: false})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 1, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 2, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
-            db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
+			// SERIE
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 1, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 3, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "FPP1", UtilDocumentTypeId: 4, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 2, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 3, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "BPP1", UtilDocumentTypeId: 4, Contingency: false})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 1, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 2, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 3, Contingency: true})
+			db.Create(&models.CompanySalePointSerie{CompanySalePointId: companySalePoint.ID, Serie: "0001", UtilDocumentTypeId: 4, Contingency: true})
 
-            // Create Roles
+			// Create Roles
 			adminRole = models.UserRole{Description: "Administrador", CompanyId: company.ID}
 
 			db.Create(&models.UserRole{Description: "Usuario", CompanyId: company.ID})

@@ -12,7 +12,7 @@ type UtilGeographicalLocation struct {
 
 // UtilGeographicalLocationShort --
 type UtilGeographicalLocationShort struct {
-	ID          uint   `json:"id" gorm:"-"`
-	Code        string `json:"code" gorm:"-"`
-	Description string `json:"description" gorm:"-"`
+	ID          uint   `json:"id"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
 }

@@ -3,12 +3,12 @@ package models
 type SaleItem struct {
 	ID uint `json:"id" gorm:"primaryKey"`
 
-	UnitMeasure string  `json:"unit_measure" gorm:"not null"`
-	ProductCode string  `json:"product_code" gorm:"not null"`
-	Description string  `json:"description" gorm:"not null"`
-	Quantity    float64 `json:"quantity" gorm:"not null"`
-	UnitValue   float64 `json:"unit_value" gorm:"not null"`
-	UnitPrice   float64 `json:"unit_price" gorm:"not null"`
+	UtilUnitMeasureTypeId uint    `json:"util_unit_measure_type_id" gorm:"not null"`
+	ProductCode           string  `json:"product_code" gorm:"not null"`
+	Description           string  `json:"description" gorm:"not null"`
+	Quantity              float64 `json:"quantity" gorm:"not null"`
+	UnitValue             float64 `json:"unit_value" gorm:"not null"`
+	UnitPrice             float64 `json:"unit_price" gorm:"not null"`
 
 	Discount float64 `json:"discount" gorm:"default: 0"`
 	Charge   float64 `json:"charge" gorm:"default: 0"`

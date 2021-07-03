@@ -107,13 +107,23 @@ func GetAllUtilDocumentType(c echo.Context) error {
 
 // GetAllUtilDocumentTypeSale --
 func GetAllUtilDocumentTypeSale(c echo.Context) error {
+	// Get data request
+	request := utilities.Request{}
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(http.StatusBadRequest, utilities.Response{
+			Message: "La estructura no es válida",
+		})
+	}
+
+	// Connect database
 	DB := provider.GetConnection()
 	// defer db.Close()
 
+	// Find UtilDocumentTypes
 	util := make([]models.UtilDocumentType, 0)
-
-	// Find users
-	if err := DB.Debug().Find(&util, []uint{1, 2, 6}).Error; err != nil {
+	if err := DB.Debug().Raw("SELECT doc.id, doc.code, doc.description, doc.sunat, doc.state FROM util_document_types as doc "+
+		" INNER JOIN company_sale_point_series as sale_point ON doc.id = sale_point.util_document_type_id AND sale_point.company_sale_point_id = ? AND sale_point.contingency = false "+
+		" WHERE doc.id IN ?", request.CompanySalePointId, []uint{1, 2, 6}).Scan(&util).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
@@ -158,7 +168,8 @@ func GetSearchUtilGeographicalLocation(c echo.Context) error {
 	utilGeographicalLocationShorts := make([]models.UtilGeographicalLocationShort, 0)
 
 	// Find users
-	if err := DB.Raw("SELECT * FROM (SELECT id, code, concat(department, '-', province, '-', district) as description  FROM util_geographical_locations) as geo WHERE lower(description) LIKE lower(?) ", "%"+request.Search+"%").
+	if err := DB.Raw("SELECT * FROM (SELECT id, code, concat(department, '-', province, '-', district) as description  FROM util_geographical_locations) as geo " +
+	    " WHERE lower(geo.description) LIKE lower(?) ", "%"+request.Search+"%").
 		Scan(&utilGeographicalLocationShorts).Error; err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}

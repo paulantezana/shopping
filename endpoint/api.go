@@ -104,6 +104,7 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/product/updateState", controller.UpdateStateProduct)
 	ar.POST("/product/seeker/by/code", controller.GetProductSeekerByCode)
 	ar.POST("/product/seeker/paginate/search", controller.PaginateProductSeekerSearch)
+	ar.POST("/product/import", controller.ImportProduct)
 
 	// provider
 	ar.POST("/provider/by/id", controller.GetProviderByID)
@@ -144,7 +145,6 @@ func ProtectedApi(e *echo.Echo) {
 	ar.GET("/util/creditDebitType/all", controller.GetAllUtilCreditDebitType)
 	ar.GET("/util/currencyType/all", controller.GetAllUtilCurrencyType)
 	ar.GET("/util/documentType/all", controller.GetAllUtilDocumentType)
-	ar.GET("/util/documentType/all/sale", controller.GetAllUtilDocumentTypeSale)
 	ar.GET("/util/geographicalLocation/all", controller.GetAllUtilGeographicalLocation)
 	ar.GET("/util/identityDocumentType/all", controller.GetAllUtilIdentityDocumentType)
 	ar.GET("/util/operationType/all", controller.GetAllUtilOperationType)
@@ -156,6 +156,9 @@ func ProtectedApi(e *echo.Echo) {
 	ar.GET("/util/transportModeType/all", controller.GetAllUtilTransportModeType)
 	ar.GET("/util/tributeType/all", controller.GetAllUtilTributeType)
 	ar.GET("/util/unitMeasureType/all", controller.GetAllUtilUnitMeasureType)
+
+	// Custom
+	ar.POST("/util/documentType/all/sale", controller.GetAllUtilDocumentTypeSale)
 
 	// Utils Search
 	ar.POST("/util/geographicalLocation/search", controller.GetSearchUtilGeographicalLocation)

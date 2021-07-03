@@ -47,6 +47,7 @@ type Sale struct {
 	UtilOperationTypeId uint `json:"util_operation_type_id" gorm:"not null"`
 	CompanyId           uint `json:"company_id" gorm:"not null"`
 	CompanyWareHouseId  uint `json:"company_ware_house_id"`
+	CompanySalePointId  uint `json:"company_sale_point_id"`
 	UserId              uint `json:"user_id" gorm:"not null"`
 
 	CreatedAt     time.Time `json:"-"`

@@ -2,9 +2,9 @@
     "Database" : {
         "server"   : "localhost",
         "port"     : "5432",
-        "user"     : "yoel",
+        "user"     : "yarbys",
         "pass"     : "cascadesheet",
-        "database" : "shopping"
+        "database" : "yarbys"
     },
     "Server" : {
         "port": "1323",

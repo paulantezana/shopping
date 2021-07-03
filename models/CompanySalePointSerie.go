@@ -7,7 +7,7 @@ type CompanySalePointSerie struct {
 	Serie       string `json:"serie" gorm:"type:varchar(4)"`
 	Contingency bool   `json:"contingency"`
 
-    CompanySalePointId uint `json:"company_sale_point_id"`
+	CompanySalePointId uint `json:"company_sale_point_id"`
 	UtilDocumentTypeId uint `json:"util_document_type_id"`
 
 	CreatedAt     time.Time `json:"-"`
@@ -15,4 +15,7 @@ type CompanySalePointSerie struct {
 	CreatedUserId uint      `json:"-"`
 	UpdatedUserId uint      `json:"-"`
 	State         bool      `json:"state" gorm:"default: true"`
+
+	// Aux
+	IsDeleted bool `json:"is_deleted" gorm:"-"`
 }

@@ -3,9 +3,9 @@ package controller
 import (
 	"fmt"
 	"net/http"
-    "regexp"
+	"regexp"
 
-    "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"github.com/paulantezana/shopping/models"
 	"github.com/paulantezana/shopping/provider"
@@ -99,10 +99,10 @@ func GetCompanySalePointByID(c echo.Context) error {
 		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 	}
 
-    // Series
-    if err := DB.Where("company_sale_point_id = ?", companySalePoint.ID).Find(&companySalePoint.CompanySalePointSeries).Error; err != nil {
-       return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
-    }
+	// Series
+	if err := DB.Where("company_sale_point_id = ?", companySalePoint.ID).Find(&companySalePoint.CompanySalePointSeries).Error; err != nil {
+		return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+	}
 
 	// Return response
 	return c.JSON(http.StatusCreated, utilities.Response{
@@ -192,6 +192,17 @@ func UpdateCompanySalePoint(c echo.Context) error {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	}
+	for _, item := range companySalePoint.CompanySalePointSeries {
+		if item.IsDeleted {
+			if err := DB.Delete(&item).Error; err != nil {
+				return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+			}
+		} else {
+			if err := DB.Save(&item).Error; err != nil {
+				return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+			}
+		}
+	}
 
 	// Return response
 	return c.JSON(http.StatusOK, utilities.Response{
@@ -246,63 +257,63 @@ func UpdateStateCompanySalePoint(c echo.Context) error {
 
 // validateCompanyLocal --
 func validateCompanySalePoint(companySalePoint models.CompanySalePoint) utilities.Response {
-    response := utilities.Response{}
-    if companySalePoint.Description == "" {
-        response.Message += "Falta ingresar la descripción \n"
-        return response
-    }
-    if len(companySalePoint.CompanySalePointSeries) == 0 {
-        response.Message += "Falta ingresar el item \n"
-        return response
-    }
-    for _, companySerie := range companySalePoint.CompanySalePointSeries {
-        if len(companySerie.Serie) != 4 {
-            response.Message += "La serie debe contener 4 digitos \n"
-            return response
-        }
-        if companySerie.UtilDocumentTypeId == 0 {
-            response.Message += "Especifique el tipo de documento \n"
-            return response
-        }
-        cSerie := string(companySerie.Serie[0])
-        if companySerie.UtilDocumentTypeId == 1 && companySerie.Contingency == false {
-            if !(cSerie == "F") {
-                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-                return response
-            }
-        }
-        if companySerie.UtilDocumentTypeId == 2 && companySerie.Contingency == false {
-            if !(cSerie == "B") {
-                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-                return response
-            }
-        }
-        if companySerie.UtilDocumentTypeId == 3 && companySerie.Contingency == false {
-            if !(cSerie == "F" || cSerie == "B") {
-                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-                return response
-            }
-        }
-        if companySerie.UtilDocumentTypeId == 4 && companySerie.Contingency == false {
-            if !(cSerie == "F" || cSerie == "B") {
-                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-                return response
-            }
-        }
-        if companySerie.Contingency {
-            if !regexp.MustCompile("^[0-9]{4}$").MatchString(companySerie.Serie) {
-                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-                return response
-            }
-        }
-        if companySerie.UtilDocumentTypeId == 5 {
-            if !(cSerie == "T") {
-                response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
-                return response
-            }
-        }
-    }
+	response := utilities.Response{}
+	if companySalePoint.Description == "" {
+		response.Message += "Falta ingresar la descripción \n"
+		return response
+	}
+	if len(companySalePoint.CompanySalePointSeries) == 0 {
+		response.Message += "Falta ingresar el item \n"
+		return response
+	}
+	for _, companySerie := range companySalePoint.CompanySalePointSeries {
+		if len(companySerie.Serie) != 4 {
+			response.Message += "La serie debe contener 4 digitos \n"
+			return response
+		}
+		if companySerie.UtilDocumentTypeId == 0 {
+			response.Message += "Especifique el tipo de documento \n"
+			return response
+		}
+		cSerie := string(companySerie.Serie[0])
+		if companySerie.UtilDocumentTypeId == 1 && companySerie.Contingency == false {
+			if !(cSerie == "F") {
+				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+				return response
+			}
+		}
+		if companySerie.UtilDocumentTypeId == 2 && companySerie.Contingency == false {
+			if !(cSerie == "B") {
+				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+				return response
+			}
+		}
+		if companySerie.UtilDocumentTypeId == 3 && companySerie.Contingency == false {
+			if !(cSerie == "F" || cSerie == "B") {
+				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+				return response
+			}
+		}
+		if companySerie.UtilDocumentTypeId == 4 && companySerie.Contingency == false {
+			if !(cSerie == "F" || cSerie == "B") {
+				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+				return response
+			}
+		}
+		if companySerie.Contingency {
+			if !regexp.MustCompile("^[0-9]{4}$").MatchString(companySerie.Serie) {
+				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+				return response
+			}
+		}
+		if companySerie.UtilDocumentTypeId == 5 {
+			if !(cSerie == "T") {
+				response.Message += fmt.Sprintf("La serie %s es incorecto para este tipo de documento", companySerie.Serie)
+				return response
+			}
+		}
+	}
 
-    response.Success = true
-    return response
+	response.Success = true
+	return response
 }

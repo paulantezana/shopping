@@ -1,14 +1,66 @@
 package controller
 
 import (
-	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo/v4"
-	"github.com/paulantezana/shopping/models"
-	"github.com/paulantezana/shopping/provider"
-	"github.com/paulantezana/shopping/utilities"
-	"net/http"
+    "errors"
+    "fmt"
+    "github.com/360EntSecGroup-Skylar/excelize"
+    "github.com/dgrijalva/jwt-go"
+    "github.com/labstack/echo/v4"
+    "github.com/paulantezana/shopping/models"
+    "github.com/paulantezana/shopping/provider"
+    "github.com/paulantezana/shopping/utilities"
+    "gorm.io/gorm"
+    "io"
+    "net/http"
+    "os"
+    "strconv"
+    "strings"
+    "time"
 )
+
+type paginateProductResponse struct {
+	ID uint `json:"id" gorm:"primaryKey"`
+
+	Url             string  `json:"url"`
+	Title           string  `json:"title"`
+	Description     string  `json:"description"`
+	LongDescription string  `json:"long_description"`
+	Barcode         string  `json:"barcode"`
+	IsService       bool    `json:"is_service"`
+	Location        string  `json:"location"`
+	StockMin        float32 `json:"stock_min"`
+	StockMax        float32 `json:"stock_max"`
+
+	InternalUse   bool    `json:"internal_use"`
+	Favourite     bool    `json:"favourite"`
+	PurchasePrice float64 `json:"purchase_price"`
+
+	Lot    bool    `json:"lot"`    // Lote
+	Bulk   bool    `json:"bulk"`   // Granel
+	Recipe bool    `json:"recipe"` // Receta medica
+	Weight float32 `json:"weight"` // Peso
+
+	SalePrice1 float64 `json:"sale_price_1"`
+	SalePrice2 float64 `json:"sale_price_2"`
+	SalePrice3 float64 `json:"sale_price_3"`
+	SalePrice4 float64 `json:"sale_price_4"`
+
+	WholeSale1 float64 `json:"whole_sale_1"`
+	WholeSale2 float64 `json:"whole_sale_2"`
+	WholeSale3 float64 `json:"whole_sale_3"`
+	WholeSale4 float64 `json:"whole_sale_4"`
+
+	PurchaseUtilUnitMeasureTypeId uint    `json:"purchase_util_unit_measure_type_id"`
+	SaleUtilUnitMeasureTypeId     uint    `json:"sale_util_unit_measure_type_id"`
+	Factor                        float32 `json:"factor"`
+
+	CompanyId  uint `json:"company_id"`
+	CategoryId uint `json:"category_id"`
+	State      bool `json:"state" gorm:"default: true"`
+
+	// AUX
+	Stock float32 `json:"stock"`
+}
 
 // PaginateProduct function get all products
 func PaginateProduct(c echo.Context) error {
@@ -39,7 +91,7 @@ func PaginateProduct(c echo.Context) error {
 
 	// Check the number of matches
 	var total int64
-	products := make([]models.Product, 0)
+	products := make([]paginateProductResponse, 0)
 
 	// Find products
 	if err := DB.Table("products").Select("products.*, kardexes.stock").
@@ -367,7 +419,7 @@ func UpdateStateProduct(c echo.Context) error {
 	})
 }
 
-// GetProductPurchaseByCode function get product by id
+// GetProductSeekerByCode function get product by id
 func GetProductSeekerByCode(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
@@ -402,4 +454,269 @@ func GetProductSeekerByCode(c echo.Context) error {
 		Success: true,
 		Data:    product,
 	})
+}
+
+// ImportProduct function update current Company
+func ImportProduct(c echo.Context) error {
+    // Get user token authenticate
+    tUser := c.Get("user").(*jwt.Token)
+    claims := tUser.Claims.(*utilities.Claim)
+    currentUser := claims.User
+
+    // Read form fields
+    wareHouseIdTemp := c.FormValue("company_ware_house_id")
+    companyWareHouseId, err := strconv.ParseUint(wareHouseIdTemp,10,32)
+    if  err != nil{
+        return c.JSON(http.StatusConflict, utilities.Response{Message: "unauthorized"})
+    }
+    updateStock := c.FormValue("update_stock")
+    updatePrice := c.FormValue("update_price")
+    updateCategory := c.FormValue("update_category")
+
+
+
+    // get connection
+    DB := provider.GetConnection()
+    // defer db.Close()
+
+    // Validate Auth
+    if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_import"); err != nil {
+        return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
+    }
+
+    // Source
+    file, err := c.FormFile("excel_file")
+    if err != nil {
+        return err
+    }
+    src, err := file.Open()
+    if err != nil {
+        return err
+    }
+    defer src.Close()
+
+    // Validate
+    isValid := utilities.ValidateUploadFile(file, 5000, []string{"XLSX", "LSX"})
+    if !isValid.Success {
+        return c.JSON(http.StatusOK, utilities.Response{
+            Message: isValid.Message,
+        })
+    }
+
+    // Destination
+    auxDir := "temp/" + file.Filename
+    dst, err := os.Create(auxDir)
+    if err != nil {
+        return err
+    }
+    defer dst.Close()
+
+    // Copy
+    if _, err = io.Copy(dst, src); err != nil {
+        return err
+    }
+
+    // ---------------------
+    // Read File whit Excel
+    // ---------------------
+    excel, err := excelize.OpenFile(auxDir)
+    if err != nil {
+        return err
+    }
+
+    // Prepare
+    ignoreCols := 1
+    counter := 0
+
+    currentWareHouse := models.CompanyWareHouse{}
+    if DB.Where("id = ?", companyWareHouseId).First(&currentWareHouse).RowsAffected == 0 {
+        return c.JSON(http.StatusConflict, utilities.Response{Message: "unauthorized"})
+    }
+
+    err = DB.Transaction(func(TX *gorm.DB) error {
+        // Get all the rows in the student.
+        rows := excel.GetRows("Sheet0")
+        if len(rows) == 0{
+            return errors.New(fmt.Sprintf("no se encontró ningún registro en la hoja 'Sheet0'"))
+        }
+
+        for k, row := range rows {
+            if k >= ignoreCols {
+                // Validate required fields
+                //if row[0] == "" || row[1] == "" {
+                //    break
+                //}
+                barcode := strings.TrimSpace(row[0])
+                title := strings.TrimSpace(row[1])
+                stockMin, err := strconv.ParseFloat(strings.TrimSpace(row[2]),32)
+                if  err != nil{
+                    return err
+                }
+                stockMax, err := strconv.ParseFloat(strings.TrimSpace(row[3]),32)
+                if  err != nil{
+                    return err
+                }
+                purchasePrice, err := strconv.ParseFloat(strings.TrimSpace(row[4]),64)
+                if  err != nil{
+                    return err
+                }
+                unitMeasurePurchase := strings.TrimSpace(row[5])
+                factor, err := strconv.ParseFloat(strings.TrimSpace(row[6]),32)
+                if  err != nil{
+                    return err
+                }
+                unitMeasureSale := strings.TrimSpace(row[7])
+                price1, err := strconv.ParseFloat(strings.TrimSpace(row[8]),64)
+                if  err != nil{
+                    return err
+                }
+                price2, err := strconv.ParseFloat(strings.TrimSpace(row[9]),64)
+                if  err != nil{
+                    return err
+                }
+                wholeSale2, err := strconv.ParseFloat(strings.TrimSpace(row[10]),64)
+                if  err != nil{
+                    return err
+                }
+                price3, err := strconv.ParseFloat(strings.TrimSpace(row[11]),64)
+                if  err != nil{
+                    return err
+                }
+                wholeSale3, err := strconv.ParseFloat(strings.TrimSpace(row[12]),64)
+                if  err != nil{
+                    return err
+                }
+                price4, err := strconv.ParseFloat(strings.TrimSpace(row[13]),64)
+                if  err != nil{
+                    return err
+                }
+                wholeSale4, err := strconv.ParseFloat(strings.TrimSpace(row[14]),64)
+                if  err != nil{
+                    return err
+                }
+                stock, err := strconv.ParseFloat(strings.TrimSpace(row[15]),64)
+                if  err != nil{
+                    return err
+                }
+                weight, err := strconv.ParseFloat(strings.TrimSpace(row[16]),32)
+                if  err != nil{
+                    return err
+                }
+                category := strings.TrimSpace(row[17])
+                recipie := strings.TrimSpace(row[18])
+                bulk := strings.TrimSpace(row[19])
+
+                // Insert product
+                product := models.Product{
+                    Barcode: barcode,
+                    Title: title,
+                    Weight: float32(weight),
+                    Recipe: recipie == "S",
+                    Bulk: bulk == "S",
+                    CompanyId: currentUser.CompanyId,
+                }
+
+                if updatePrice == "true"{
+                    umPurchaseAux := models.UtilUnitMeasureType{}
+                    if unitMeasurePurchase == "" {
+                        unitMeasurePurchase = "NIU"
+                    }
+                    if TX.Where("code = ?",unitMeasurePurchase).First(&umPurchaseAux).RowsAffected == 0 {
+                        return errors.New("unida de medida de compra no reconocida")
+                    }
+
+                    umSaleAux := models.UtilUnitMeasureType{}
+                    if unitMeasureSale == "" {
+                        unitMeasureSale = "NIU"
+                    }
+                    if TX.Where("code = ?",unitMeasureSale).First(&umSaleAux).RowsAffected == 0 {
+                        return errors.New("unida de medida de venta no reconocida")
+                    }
+
+                    product.StockMin = float32(stockMin)
+                    product.StockMax = float32(stockMax)
+                    product.PurchasePrice = float64(purchasePrice)
+                    product.PurchaseUtilUnitMeasureTypeId = umPurchaseAux.ID
+                    product.Factor = float32(factor)
+                    product.SaleUtilUnitMeasureTypeId = umSaleAux.ID
+                    product.SalePrice1 = float64(price1)
+                    product.WholeSale1 = 0
+                    product.SalePrice2 = float64(price2)
+                    product.WholeSale2 = float64(wholeSale2)
+                    product.SalePrice3 = float64(price3)
+                    product.WholeSale3 = float64(wholeSale3)
+                    product.SalePrice4 = float64(price4)
+                    product.WholeSale4 = float64(wholeSale4)
+                }
+
+                if updateCategory == "true" {
+                    categoryAux := models.Category{}
+                    if category == "" {
+                        category = "General"
+                    }
+                    if TX.Where("name = ?",category).Where("company_id = ?",currentUser.CompanyId).First(&categoryAux).RowsAffected == 0 {
+                        categoryAux.Name = category
+                        categoryAux.CompanyId = currentUser.CompanyId
+                        if err := TX.Create(&categoryAux).Error; err != nil {
+                            return err
+                        }
+                    }
+                    product.CategoryId = categoryAux.ID
+                }
+
+                // Find If exist
+                productAux := models.Product{}
+                if TX.Where("barcode", product.Barcode).Where("company_id",currentUser.CompanyId).First(&productAux).RowsAffected != 0 {
+                    product.ID = productAux.ID
+                    if err := TX.Model(&product).Updates(product).Error; err != nil {
+                        return err
+                    }
+                } else {
+                    if err := TX.Create(&product).Error; err != nil {
+                        return err
+                    }
+                }
+
+                if updateStock == "true" {
+                    // Update Kardex
+                    kardexAux := models.Kardex{}
+                    TX.Where("product_id = ? AND company_ware_house_id = ? AND is_last = true", product.ID, companyWareHouseId).First(&kardexAux)
+                    TX.Model(&models.Kardex{}).Where("product_id = ?", product.ID).Where("company_ware_house_id = ?", companyWareHouseId).Update("is_last", false)
+
+                    kardex := models.Kardex{}
+                    kardex.DateOfIssue = time.Now()
+                    kardex.Quantity = stock
+                    kardex.UnitPrice = product.SalePrice1
+                    kardex.Total = product.SalePrice1 * stock
+                    kardex.Origin = "Importar"
+                    kardex.Destination = currentWareHouse.Description
+                    kardex.Description = product.Title
+                    kardex.DocumentDescription = "Importar"
+                    kardex.UserId = currentUser.ID
+                    kardex.ProductId = product.ID
+                    kardex.CompanyWareHouseId = uint(companyWareHouseId)
+                    kardex.Stock = kardexAux.Stock + stock
+                    kardex.IsLast = true
+                    kardex.IsIncome = true
+                    if err := TX.Create(&kardex).Error; err != nil {
+                        return err
+                    }
+                }
+
+                counter++
+            }
+        }
+
+        return nil
+    })
+    if err != nil {
+        return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
+    }
+
+    // Return response
+    return c.JSON(http.StatusOK, utilities.Response{
+        Success: true,
+        Message: "La importación se realizó exitosamente",
+        Data:    counter,
+    })
 }

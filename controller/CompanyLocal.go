@@ -1,13 +1,13 @@
 package controller
 
 import (
-    "fmt"
-    "github.com/dgrijalva/jwt-go"
-    "github.com/labstack/echo/v4"
-    "github.com/paulantezana/shopping/models"
-    "github.com/paulantezana/shopping/provider"
-    "github.com/paulantezana/shopping/utilities"
-    "net/http"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
+	"github.com/paulantezana/shopping/models"
+	"github.com/paulantezana/shopping/provider"
+	"github.com/paulantezana/shopping/utilities"
+	"net/http"
 )
 
 // PaginateCompanyLocal function get all companylocals

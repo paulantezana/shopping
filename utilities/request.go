@@ -6,14 +6,15 @@ import (
 )
 
 type Request struct {
-	Search      string    `json:"search"`
-	CurrentPage int       `json:"current_page"`
-	PageSize    int       `json:"page_size"`
-	WareHouseId uint      `json:"ware_house_id"`
-	CompanyId   uint      `json:"company_id"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-	IDs         []uint    `json:"i_ds"`
+	Search             string    `json:"search"`
+	CurrentPage        int       `json:"current_page"`
+	PageSize           int       `json:"page_size"`
+	WareHouseId        uint      `json:"ware_house_id"`
+	CompanySalePointId uint      `json:"company_sale_point_id"`
+	CompanyId          uint      `json:"company_id"`
+	StartDate          time.Time `json:"start_date"`
+	EndDate            time.Time `json:"end_date"`
+	IDs                []uint    `json:"i_ds"`
 }
 
 func (r *Request) Validate() int {
