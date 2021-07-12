@@ -38,6 +38,7 @@ iniciar el servicio
 sudo systemctl start shopping.service
 ```
 
+
 verificar el servicio
 ```bash
 sudo systemctl status shopping.service
