@@ -1,20 +1,20 @@
 package controller
 
 import (
-    "crypto/sha256"
-    "errors"
-    "fmt"
-    "github.com/jung-kurt/gofpdf"
-    "gorm.io/gorm"
-    "net/http"
-    "strings"
-    "time"
+	"crypto/sha256"
+	"errors"
+	"fmt"
+	"github.com/jung-kurt/gofpdf"
+	"gorm.io/gorm"
+	"net/http"
+	"strings"
+	"time"
 
-    "github.com/dgrijalva/jwt-go"
-    "github.com/labstack/echo/v4"
-    "github.com/paulantezana/shopping/models"
-    "github.com/paulantezana/shopping/provider"
-    "github.com/paulantezana/shopping/utilities"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
+	"github.com/paulantezana/shopping/models"
+	"github.com/paulantezana/shopping/provider"
+	"github.com/paulantezana/shopping/utilities"
 )
 
 type newSale struct {
@@ -81,7 +81,7 @@ func GetSaleItemBySaleID(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_new_sale"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_new_sale"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -127,7 +127,7 @@ func NewSale(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_new_sale"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_new_sale"); err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -270,10 +270,10 @@ func NewSale(c echo.Context) error {
 			return c.JSON(http.StatusOK, utilities.Response{Message: fmt.Sprintf("%s", err)})
 		}
 	} else if sale.UtilDocumentTypeId == 6 {
-	    company := models.Company{}
-        if DB.Where("id = ?", currentUser.CompanyId).First(&company).RowsAffected == 0 {
-            return err
-        }
+		company := models.Company{}
+		if DB.Where("id = ?", currentUser.CompanyId).First(&company).RowsAffected == 0 {
+			return err
+		}
 		invoicePath, err = buildSaleTicketPdf(DB, company, sale.ID)
 	}
 
@@ -311,7 +311,7 @@ func CancelSale(c echo.Context) error {
 	TX := DB.Begin()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_new_sale"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_new_sale"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -575,72 +575,72 @@ func sendDocumentNubefact(DB *gorm.DB, saleId uint, url string, token string) (u
 	return res, err
 }
 
-type  buildSaleTicketTemplate struct {
-    ID                uint  
-    DateOfIssue       time.Time 
-    DateOfSale        time.Time 
-    Serie             string
-    Number            string
-    Observation       string
-    CancelObservation string
+type buildSaleTicketTemplate struct {
+	ID                uint
+	DateOfIssue       time.Time
+	DateOfSale        time.Time
+	Serie             string
+	Number            string
+	Observation       string
+	CancelObservation string
 
-    // Customer
-    DocumentNumber             string
-    SocialReason               string
-    FiscalAddress              string
-    Email                      string
-    Phone                      string
+	// Customer
+	DocumentNumber string
+	SocialReason   string
+	FiscalAddress  string
+	Email          string
+	Phone          string
 
-    TotalUnaffected   float64
-    TotalTaxed        float64
-    TotalIgv          float64
-    Total             float64
+	TotalUnaffected float64
+	TotalTaxed      float64
+	TotalIgv        float64
+	Total           float64
 
-    DocumentName   string
-    UserName       string
-    CurrencySymbol string
-    CurrencyDescription string
-    IdentityDocumentName string
+	DocumentName         string
+	UserName             string
+	CurrencySymbol       string
+	CurrencyDescription  string
+	IdentityDocumentName string
 }
 
-type  buildSaleItemTicketTemplate struct {
-    ID uint `json:"id" gorm:"primaryKey"`
-    ProductCode           string 
-    Description           string 
-    Quantity              float64 
-    UnitValue             float64
-    UnitPrice             float64 
-    Discount float64 
-    TotalValue float64
-    Total      float64
-    UnitMeasureCode string
+type buildSaleItemTicketTemplate struct {
+	ID              uint `json:"id" gorm:"primaryKey"`
+	ProductCode     string
+	Description     string
+	Quantity        float64
+	UnitValue       float64
+	UnitPrice       float64
+	Discount        float64
+	TotalValue      float64
+	Total           float64
+	UnitMeasureCode string
 }
 
-func buildSaleTicketPdf(DB *gorm.DB, con models.Company,  saleId uint) (string, error) {
-    // Get data sale
-    sale := buildSaleTicketTemplate{}
-    if err := DB.Table("sales").Select("sales.*, util_document_types.description as document_name, users.user_name as user_name, " +
-        " util_currency_types.symbol as currency_symbol, util_currency_types.description as currency_description, " +
-        " util_identity_document_types.description as identity_document_name").
-        Joins("INNER JOIN util_document_types ON sales.util_document_type_id = util_document_types.id").
-        Joins("INNER JOIN util_identity_document_types ON sales.util_identity_document_type_id = util_identity_document_types.id").
-        Joins("INNER JOIN users ON sales.user_id = users.id").
-        Joins("INNER JOIN util_currency_types ON sales.util_currency_type_id = util_currency_types.id").
-        Where("sales.id = ?", saleId).Limit(1).Scan(&sale).Error; err != nil {
-            return "", err
-    }
+func buildSaleTicketPdf(DB *gorm.DB, con models.Company, saleId uint) (string, error) {
+	// Get data sale
+	sale := buildSaleTicketTemplate{}
+	if err := DB.Table("sales").Select("sales.*, util_document_types.description as document_name, users.user_name as user_name, "+
+		" util_currency_types.symbol as currency_symbol, util_currency_types.description as currency_description, "+
+		" util_identity_document_types.description as identity_document_name").
+		Joins("INNER JOIN util_document_types ON sales.util_document_type_id = util_document_types.id").
+		Joins("INNER JOIN util_identity_document_types ON sales.util_identity_document_type_id = util_identity_document_types.id").
+		Joins("INNER JOIN users ON sales.user_id = users.id").
+		Joins("INNER JOIN util_currency_types ON sales.util_currency_type_id = util_currency_types.id").
+		Where("sales.id = ?", saleId).Limit(1).Scan(&sale).Error; err != nil {
+		return "", err
+	}
 
-    saleItems := make([]buildSaleItemTicketTemplate, 0)
-    if err := DB.Table("sale_items").Select("sale_items.*, util_unit_measure_types.code as unit_measure_code").
-        Joins("INNER JOIN util_unit_measure_types ON sale_items.util_unit_measure_type_id = util_unit_measure_types.id").
-        Where("sale_items.sale_id = ?", saleId).Scan(&saleItems).Error; err != nil {
-        return "", err
-    }
+	saleItems := make([]buildSaleItemTicketTemplate, 0)
+	if err := DB.Table("sale_items").Select("sale_items.*, util_unit_measure_types.code as unit_measure_code").
+		Joins("INNER JOIN util_unit_measure_types ON sale_items.util_unit_measure_type_id = util_unit_measure_types.id").
+		Where("sale_items.sale_id = ?", saleId).Scan(&saleItems).Error; err != nil {
+		return "", err
+	}
 
-    geographicalLocation := models.UtilGeographicalLocation{}
-    if DB.Where("id = ?", con.UtilGeographicalLocationId).First(&geographicalLocation).RowsAffected == 0 {
-        return "", nil
-    }
+	geographicalLocation := models.UtilGeographicalLocation{}
+	if DB.Where("id = ?", con.UtilGeographicalLocationId).First(&geographicalLocation).RowsAffected == 0 {
+		return "", nil
+	}
 
 	// Settings
 	pageMargin := 3.0
@@ -663,105 +663,105 @@ func buildSaleTicketPdf(DB *gorm.DB, con models.Company,  saleId uint) (string, 
 	pageWidth, _ := pdf.GetPageSize()
 	pageWidth -= leftMargin + rightMargin
 	fontFamilyName := "Calibri"
-	fontSize:=7.0
+	fontSize := 7.0
 	//gutter := 2.0
-    lineHeight := 2.5
+	lineHeight := 2.5
 
-    // Init
-    pdf.AddPage()
-    pdf.SetFont(fontFamilyName, "B", fontSize)
+	// Init
+	pdf.AddPage()
+	pdf.SetFont(fontFamilyName, "B", fontSize)
 	//offsetTop := topMargin
-    //pdf.SetY()
+	//pdf.SetY()
 
-    // Header
-    pdf.WriteAligned(0, lineHeight, strings.ToUpper(con.SocialReason), "C")
-    pdf.Ln(lineHeight)
+	// Header
+	pdf.WriteAligned(0, lineHeight, strings.ToUpper(con.SocialReason), "C")
+	pdf.Ln(lineHeight)
 
-    pdf.SetFont(fontFamilyName, "", fontSize)
-    pdf.WriteAligned(0, lineHeight, strings.ToUpper(con.Address), "C")
-    pdf.Ln(lineHeight)
+	pdf.SetFont(fontFamilyName, "", fontSize)
+	pdf.WriteAligned(0, lineHeight, strings.ToUpper(con.Address), "C")
+	pdf.Ln(lineHeight)
 
-    pdf.WriteAligned(0, lineHeight, strings.ToUpper(geographicalLocation.District) + " - " + strings.ToUpper(geographicalLocation.Province) + " - " + strings.ToUpper(geographicalLocation.Department), "C")
-    pdf.Ln(lineHeight)
+	pdf.WriteAligned(0, lineHeight, strings.ToUpper(geographicalLocation.District)+" - "+strings.ToUpper(geographicalLocation.Province)+" - "+strings.ToUpper(geographicalLocation.Department), "C")
+	pdf.Ln(lineHeight)
 
-    pdf.SetFont(fontFamilyName, "B", fontSize + 2)
-    pdf.WriteAligned(0, lineHeight + 0.5, sale.DocumentName, "C")
-    pdf.Ln(lineHeight)
+	pdf.SetFont(fontFamilyName, "B", fontSize+2)
+	pdf.WriteAligned(0, lineHeight+0.5, sale.DocumentName, "C")
+	pdf.Ln(lineHeight)
 
-    pdf.WriteAligned(0, lineHeight + 0.5, sale.Serie + "-" + sale.Number, "C")
-    pdf.Ln(lineHeight * 2)
+	pdf.WriteAligned(0, lineHeight+0.5, sale.Serie+"-"+sale.Number, "C")
+	pdf.Ln(lineHeight * 2)
 
-    pdf.SetFont(fontFamilyName, "B", fontSize)
-    pdf.WriteAligned(0, lineHeight, "CLIENTE", "L")
-    pdf.Ln(lineHeight)
+	pdf.SetFont(fontFamilyName, "B", fontSize)
+	pdf.WriteAligned(0, lineHeight, "CLIENTE", "L")
+	pdf.Ln(lineHeight)
 
-    pdf.SetFont(fontFamilyName, "", fontSize)
-    pdf.WriteAligned(0, lineHeight, sale.IdentityDocumentName + ": " + sale.DocumentNumber, "L")
-    pdf.Ln(lineHeight)
+	pdf.SetFont(fontFamilyName, "", fontSize)
+	pdf.WriteAligned(0, lineHeight, sale.IdentityDocumentName+": "+sale.DocumentNumber, "L")
+	pdf.Ln(lineHeight)
 
-    pdf.WriteAligned(0, lineHeight, sale.SocialReason, "L")
-    pdf.Ln(lineHeight)
+	pdf.WriteAligned(0, lineHeight, sale.SocialReason, "L")
+	pdf.Ln(lineHeight)
 
-    pdf.SetFont(fontFamilyName, "B", fontSize)
-    pdf.WriteAligned(0, lineHeight, "FECHA EMISIÓN: ", "L")
-    pdf.SetFont(fontFamilyName, "", fontSize)
-    pdf.WriteAligned(0, lineHeight, fmt.Sprintf("%d-%02d-%02d", sale.DateOfIssue.Year(), sale.DateOfIssue.Month(), sale.DateOfIssue.Day()), "L")
-    pdf.Ln(lineHeight)
+	pdf.SetFont(fontFamilyName, "B", fontSize)
+	pdf.WriteAligned(0, lineHeight, "FECHA EMISIÓN: ", "L")
+	pdf.SetFont(fontFamilyName, "", fontSize)
+	pdf.WriteAligned(0, lineHeight, fmt.Sprintf("%d-%02d-%02d", sale.DateOfIssue.Year(), sale.DateOfIssue.Month(), sale.DateOfIssue.Day()), "L")
+	pdf.Ln(lineHeight)
 
-    pdf.SetFont(fontFamilyName, "B", fontSize)
-    pdf.WriteAligned(0, lineHeight, "MONEDA: ", "L")
-    pdf.SetFont(fontFamilyName, "", fontSize)
-    pdf.WriteAligned(0, lineHeight, sale.CurrencyDescription, "L")
-    pdf.Ln(lineHeight * 1.5)
+	pdf.SetFont(fontFamilyName, "B", fontSize)
+	pdf.WriteAligned(0, lineHeight, "MONEDA: ", "L")
+	pdf.SetFont(fontFamilyName, "", fontSize)
+	pdf.WriteAligned(0, lineHeight, sale.CurrencyDescription, "L")
+	pdf.Ln(lineHeight * 1.5)
 
-    // Column widths
-    w := []float64{8.0, 38.0, 10.0, 10.0}
-    wSum := 0.0
-    for _, v := range w {
-        wSum += v
-    }
-    left := leftMargin + 1
+	// Column widths
+	w := []float64{8.0, 38.0, 10.0, 10.0}
+	wSum := 0.0
+	for _, v := range w {
+		wSum += v
+	}
+	left := leftMargin + 1
 
-    // 	Table header
-    pdf.SetX(left)
-    pdf.SetDrawColor(206, 206, 206)
-    pdf.SetFont(fontFamilyName, "B", fontSize)
-    for j, str := range []string{"CANT", "DESCRIPCIÓN", "P/U", "Total"} {
-        pdf.CellFormat(w[j], lineHeight, str, "TB", 0, "C", false, 0, "")
-    }
-    pdf.Ln(-1)
+	// 	Table header
+	pdf.SetX(left)
+	pdf.SetDrawColor(206, 206, 206)
+	pdf.SetFont(fontFamilyName, "B", fontSize)
+	for j, str := range []string{"CANT", "DESCRIPCIÓN", "P/U", "Total"} {
+		pdf.CellFormat(w[j], lineHeight, str, "TB", 0, "C", false, 0, "")
+	}
+	pdf.Ln(-1)
 
-    // Table body
-    pdf.SetFont(fontFamilyName, "", fontSize)
-    for _, item := range saleItems {
-        pdf.SetX(left)
-        pdf.CellFormat(w[0], lineHeight, fmt.Sprintf("%.1f",item.Quantity), "TB", 0, "C", false, 0, "")
-        pdf.CellFormat(w[1], lineHeight, item.Description, "TB", 0, "", false, 0, "")
-        pdf.CellFormat(w[2], lineHeight, fmt.Sprintf("%.2f",item.UnitPrice), "TB", 0, "C", false, 0, "")
-        pdf.CellFormat(w[3], lineHeight, fmt.Sprintf("%.2f",item.Total), "TB", 0, "C", false, 0, "")
-        pdf.Ln(-1)
-    }
-    pdf.Ln(lineHeight / 2)
+	// Table body
+	pdf.SetFont(fontFamilyName, "", fontSize)
+	for _, item := range saleItems {
+		pdf.SetX(left)
+		pdf.CellFormat(w[0], lineHeight, fmt.Sprintf("%.1f", item.Quantity), "TB", 0, "C", false, 0, "")
+		pdf.CellFormat(w[1], lineHeight, item.Description, "TB", 0, "", false, 0, "")
+		pdf.CellFormat(w[2], lineHeight, fmt.Sprintf("%.2f", item.UnitPrice), "TB", 0, "C", false, 0, "")
+		pdf.CellFormat(w[3], lineHeight, fmt.Sprintf("%.2f", item.Total), "TB", 0, "C", false, 0, "")
+		pdf.Ln(-1)
+	}
+	pdf.Ln(lineHeight / 2)
 
-    // Footer
-    pdf.WriteAligned(0, lineHeight, fmt.Sprintf("Total: %s %.2f", sale.CurrencySymbol, sale.Total), "R")
-    pdf.Ln(lineHeight)
+	// Footer
+	pdf.WriteAligned(0, lineHeight, fmt.Sprintf("Total: %s %.2f", sale.CurrencySymbol, sale.Total), "R")
+	pdf.Ln(lineHeight)
 
-    pdf.WriteAligned(0, lineHeight, fmt.Sprintf("User: %s", sale.UserName), "L")
-    pdf.Ln(lineHeight)
+	pdf.WriteAligned(0, lineHeight, fmt.Sprintf("User: %s", sale.UserName), "L")
+	pdf.Ln(lineHeight)
 
-    // Set file name
+	// Set file name
 	cc := sha256.Sum256([]byte(fmt.Sprintf("%d-", saleId)))
 	pwd := fmt.Sprintf("%x", cc)
 	fileName := fmt.Sprintf("static/temp/%s.pdf", pwd)
 
 	// Remove all files
-    err := utilities.ClearTempFolder(false)
-    if err != nil {
-        return "", err
-    }
+	err := utilities.ClearTempFolder(false)
+	if err != nil {
+		return "", err
+	}
 
-    // Save file
+	// Save file
 	err = pdf.OutputFileAndClose(fileName)
 	if err != nil {
 		return "", err

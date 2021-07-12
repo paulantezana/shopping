@@ -3,10 +3,10 @@ package utilities
 import (
 	"fmt"
 	"mime/multipart"
-    "os"
-    "path/filepath"
+	"os"
+	"path/filepath"
 	"strings"
-    "time"
+	"time"
 )
 
 func FindInSlice(slice []string, val string) (int, bool) {
@@ -38,20 +38,20 @@ func ValidateUploadFile(file *multipart.FileHeader, maxSizeKb int64, mimeTypes [
 }
 
 func ClearTempFolder(removeNow bool) error {
-    currentTime := time.Now()
-    if currentTime.Hour() != 8 || !removeNow {
-        return nil
-    }
+	currentTime := time.Now()
+	if currentTime.Hour() != 8 || !removeNow {
+		return nil
+	}
 
-    err := os.RemoveAll("static/temp/")
-    if err != nil {
-        return err
-    }
+	err := os.RemoveAll("static/temp/")
+	if err != nil {
+		return err
+	}
 
-    err = os.Mkdir("static/temp/",0777)
-    if err != nil {
-        return err
-    }
+	err = os.Mkdir("static/temp/", 0777)
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }

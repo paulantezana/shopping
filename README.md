@@ -1,7 +1,12 @@
+# Generate binary
+```bash
+GOOS=linux GOARCH=amd64 go build -o shopping main.go
+```
+
 # Database
 ```sql
-CREATE ROLE yoel LOGIN PASSWORD 'cascadesheet'
-CREATE DATABASE shopping OWNER yoel
+CREATE ROLE yarbys LOGIN PASSWORD 'cascadesheet'
+CREATE DATABASE yarbys OWNER yarbys
 ```
 
 ```bash
@@ -10,12 +15,12 @@ sudo vim /etc/systemd/system/shopping.service
 
 ```
 [Unit]
-Description="API service de GO para el sistema de venta shopping"
+Description="API shopping"
 
 [Service]
-ExecStart=/home/ubuntu/shopping/api/shopping
-WorkingDirectory=/home/ubuntu/shopping/api/
-User=ubuntu
+ExecStart=/var/www/yarbys.com/shopping/shopping
+WorkingDirectory=/var/www/yarbys.com/shopping/
+User=root
 Restart=always
 
 [Install]

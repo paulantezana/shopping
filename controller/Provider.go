@@ -31,7 +31,7 @@ func PaginateProvider(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -71,7 +71,7 @@ func GetAllProvider(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -110,7 +110,7 @@ func GetSearchProvider(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -151,7 +151,7 @@ func GetProviderByID(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -187,7 +187,7 @@ func CreateProvider(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -226,7 +226,7 @@ func UpdateProvider(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -277,7 +277,7 @@ func UpdateStateProvider(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_provider"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_provider"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 

@@ -31,7 +31,7 @@ func PaginateCategory(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_category"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -59,7 +59,7 @@ func PaginateCategory(c echo.Context) error {
 	})
 }
 
-// GetAllCategory function get all categorys
+// GetAllCategory function get all categories
 func GetAllCategory(c echo.Context) error {
 	// Get user token authenticate
 	tUser := c.Get("user").(*jwt.Token)
@@ -71,7 +71,7 @@ func GetAllCategory(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_category"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -110,7 +110,7 @@ func GetCategoryByID(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_category"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -146,7 +146,7 @@ func CreateCategory(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_category"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -185,7 +185,7 @@ func UpdateCategory(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_category"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -236,7 +236,7 @@ func UpdateStateCategory(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "maintenance_category"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "setting_category"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 

@@ -55,7 +55,7 @@ func GetPurchaseItemByPurchaseID(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_new_purchase"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_new_purchase"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -99,7 +99,7 @@ func NewPurchase(c echo.Context) error {
 	TX := DB.Begin()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_new_purchase"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_new_purchase"); err != nil {
 		return c.JSON(http.StatusOK, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -200,7 +200,7 @@ func CancelPurchase(c echo.Context) error {
 	TX := DB.Begin()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "purchase_new_purchase"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_new_purchase"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 

@@ -87,6 +87,22 @@ func ProtectedApi(e *echo.Echo) {
 	ar.POST("/company/salePoint/update", controller.UpdateCompanySalePoint)
 	ar.POST("/company/salePoint/updateState", controller.UpdateStateCompanySalePoint)
 
+    // Income type
+    ar.POST("/incomeType/by/id", controller.GetIncomeTypeByID)
+    ar.POST("/incomeType/paginate", controller.PaginateIncomeType)
+    ar.POST("/incomeType/all", controller.GetAllIncomeType)
+    ar.POST("/incomeType/create", controller.CreateIncomeType)
+    ar.POST("/incomeType/update", controller.UpdateIncomeType)
+    ar.POST("/incomeType/updateState", controller.UpdateStateIncomeType)
+
+    // Expense type
+    ar.POST("/expenseType/by/id", controller.GetExpenseTypeByID)
+    ar.POST("/expenseType/paginate", controller.PaginateExpenseType)
+    ar.POST("/expenseType/all", controller.GetAllExpenseType)
+    ar.POST("/expenseType/create", controller.CreateExpenseType)
+    ar.POST("/expenseType/update", controller.UpdateExpenseType)
+    ar.POST("/expenseType/updateState", controller.UpdateStateExpenseType)
+
 	// patter
 	ar.POST("/category/by/id", controller.GetCategoryByID)
 	ar.POST("/category/all", controller.GetAllCategory)

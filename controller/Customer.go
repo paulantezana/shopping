@@ -31,7 +31,7 @@ func PaginateCustomer(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -71,7 +71,7 @@ func GetAllCustomer(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -110,7 +110,7 @@ func GetSearchCustomer(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -151,7 +151,7 @@ func GetCustomerByID(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -187,7 +187,7 @@ func CreateCustomer(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -226,7 +226,7 @@ func UpdateCustomer(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
@@ -277,7 +277,7 @@ func UpdateStateCustomer(c echo.Context) error {
 	// defer db.Close()
 
 	// Validate Auth
-	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "sale_customer"); err != nil {
+	if err := validateIsAuthorized(DB, currentUser.UserRoleId, "operation_customer"); err != nil {
 		return c.JSON(http.StatusForbidden, utilities.Response{Message: "unauthorized"})
 	}
 
